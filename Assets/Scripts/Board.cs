@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum BoardType { CHECKERED, CUSTOM };
+public enum PieceType { PAWN, KING, ROOK, BISHOP, KINGHT, QUEEN };
+
 public class Board : MonoBehaviour {
     
     public GameObject blackField;
     public GameObject whiteField;
     
-    void BuildBoard (int width, int height) {
+    public void BuildBoard (int width, int height, BoardType boardType, GameObject[][] customLayout = null) {
         Vector3 size = blackField.GetComponent<Renderer>().bounds.size;
         float sizeX = size.x;
         Debug.Log(size);
@@ -15,7 +18,19 @@ public class Board : MonoBehaviour {
         
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                GameObject field = (i + j) % 2 == 1 ? blackField : whiteField;
+                GameObject field = null;
+
+                switch (boardType) {
+                    case BoardType.CHECKERED:
+                        field = (i + j) % 2 == 1 ? blackField : whiteField;
+                        break;
+                    case BoardType.CUSTOM:
+                        field = customLayout[i][j];
+                        break;
+                    default:
+                        break;
+                }
+
                 
                 GameObject instantiatedField = (GameObject)Instantiate(field,
                                                                        scaleFactor * (initialPosition + sizeX * new Vector3(j, i, 0)),
@@ -27,7 +42,5 @@ public class Board : MonoBehaviour {
         }
     }
     
-    void Start () {
-
-    }
+    
 }
