@@ -3,14 +3,14 @@ using System.Collections;
 
 public class GameIcon : MonoBehaviour {
 
+    public UI ui;
+    public GameMenu gameMenu;
+
     public GameName gameName;
 
-    void OnMouseDown () {
-        UI ui = GameObject.FindGameObjectWithTag("ui").GetComponent<UI>();
-
-        ui.setActiveUI(GameObject.FindGameObjectWithTag("game menu"));
-
-        ui.gameName = gameName;
-        Debug.Log("pozvana");
+    public void OnClick () {
+        ui.setActiveUI(gameMenu.gameObject.GetComponent<Canvas>());
+        
+        gameMenu.SetGame(gameName);
     }
 }

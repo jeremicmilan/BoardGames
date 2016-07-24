@@ -5,19 +5,15 @@ public enum GameName { VIKING_CHESS, REVERSI, CHECKERS };
 
 public class UI : MonoBehaviour {
 
-    public GameObject mainMenu;
-    public GameObject gameMenu;
+    public Canvas mainMenu;
+    public Canvas gameMenu;
+    public Canvas gameUI;
 
-    public GameName gameName;
+    public void setActiveUI (Canvas ui) {
+        mainMenu.enabled = false;
+        gameMenu.enabled = false;
+        gameUI.enabled = false;
 
-    public void setActiveUI (GameObject ui) {
-        mainMenu.SetActive(false);
-        gameMenu.SetActive(false);
-
-        ui.SetActive(true);
-    }
-
-    public void setGameName (GameName gameName) {
-        this.gameName = gameName;
+        ui.enabled = true;
     }
 }
