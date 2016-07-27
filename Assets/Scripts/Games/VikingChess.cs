@@ -6,7 +6,7 @@ public class VikingChess : Game {
     public VikingChess ()
         : base(GameName.VIKING_CHESS, "Viking Chess", "", null) { }
 
-    public override void StartSinglePlayer () {
+    void SetBoardAndPieces() {
         board = Object.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
 
         Board boardScript = board.GetComponent<Board>();
@@ -20,7 +20,7 @@ public class VikingChess : Game {
                                                  { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
                                                  { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
                                                  { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.ROOK, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE }},
-                              true);
+                              false);
         boardScript.SetPieces(new PieceType[,] { { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
                                                  { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
                                                  { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
@@ -30,10 +30,14 @@ public class VikingChess : Game {
                                                  { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
                                                  { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
                                                  { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE }},
-                              false);
+                              true);
+    }
+
+    public override void StartSinglePlayer () {
+        SetBoardAndPieces();
     }
 
     public override void StartTwoPlayer () {
-
+        SetBoardAndPieces();
     }
 }

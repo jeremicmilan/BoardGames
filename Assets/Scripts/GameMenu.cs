@@ -33,6 +33,9 @@ public class GameMenu : MonoBehaviour {
     }
 
     public void StartTwoPlayer () {
+        UI ui = GameObject.Find("UI").GetComponent<UI>();
+        ui.setActiveUI(GameObject.FindGameObjectWithTag("game ui").GetComponent<Canvas>());
 
+        game.StartTwoPlayer();
     }
 }
