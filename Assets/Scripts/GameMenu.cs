@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class GameMenu : MonoBehaviour {
-    
+
     public Game[] gameList = new Game[] { new VikingChess(), new Checkers(), new Reversi() };
     public Game game;
 

@@ -10,7 +10,7 @@ public class GameIcon : MonoBehaviour {
 
     public void OnClick () {
         ui.setActiveUI(gameMenu.gameObject.GetComponent<Canvas>());
-        
+
         gameMenu.SetGame(gameName);
     }
 }
