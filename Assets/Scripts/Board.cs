@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum BoardType { CHECKERED, CUSTOM };
+public enum BoardType { CHECKERED, CUSTOM, UNCHECKERED };
 public enum PieceType { PAWN, KING, ROOK, BISHOP, KINGHT, QUEEN, NONE };
 
 public class Board : MonoBehaviour {
@@ -39,6 +39,9 @@ public class Board : MonoBehaviour {
                 switch (boardType) {
                     case BoardType.CHECKERED:
                         field = (i + j) % 2 == 1 ? blackField : whiteField;
+                        break;
+                    case BoardType.UNCHECKERED:
+                        field = whiteField;
                         break;
                     case BoardType.CUSTOM:
                         field = customLayout[i, j];
@@ -78,6 +81,11 @@ public class Board : MonoBehaviour {
                 piece.transform.parent = board[i, j].transform;
                 piece.transform.localPosition = new Vector3(0, 0, -1);
                 piece.transform.localScale = board[i, j].transform.localScale;
+
+                if (!isWhite)
+                    piece.transform.GetComponent<Renderer>().material.color = Color.gray;
+
+                
             }
         }
     }
