@@ -16,4 +16,11 @@ public class UI : MonoBehaviour {
 
         ui.enabled = true;
     }
+
+    public void exitApp()
+    {
+        Application.Quit();
+    }
+
 }
+
