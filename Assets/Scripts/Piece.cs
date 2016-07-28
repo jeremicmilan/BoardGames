@@ -16,12 +16,44 @@ public class Position {
     public override string ToString () {
         return "(" + x + ", " + y + ")";
     }
+
+    public static bool operator == (Position position1, Position position2) {
+        if ((System.Object)position1 == null || (System.Object)position2 == null) {
+            return false;
+        }
+
+        return position1.x == position2.x && position1.y == position2.y;
+    }
+
+    public static bool operator != (Position position1, Position position2) {
+        return !(position1 == position2);
+    }
+
+    public bool Equals (Position other) {
+        return this == other;
+    }
+
+    public override bool Equals (object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        Position objAsPosition = obj as Position;
+        if (objAsPosition == null) {
+            return false;
+        } else {
+            return Equals(objAsPosition);
+        }
+    }
+
+    public override int GetHashCode () {
+        return base.GetHashCode();
+    }
 }
 
 public class Move {
     public Position start;
     public Position end;
-    public GameObject field;
 
     public Move (Position start, Position end) {
         this.start = start;
@@ -30,6 +62,39 @@ public class Move {
 
     public override string ToString () {
         return "start: " + start + "; end " + end;
+    }
+
+    public static bool operator == (Move move1, Move move2) {
+        if ((System.Object) move1 == null || (System.Object)move2 == null) {
+            return false;
+        }
+
+        return move1.start == move2.start && move1.end == move2.end;
+    }
+
+    public static bool operator != (Move move1, Move move2) {
+        return !(move1 == move2);
+    }
+
+    public bool Equals (Move other) {
+        return this == other;
+    }
+
+    public override bool Equals (object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        Move objAsMove = obj as Move;
+        if (objAsMove == null) {
+            return false;
+        } else {
+            return Equals(objAsMove);
+        }
+    }
+
+    public override int GetHashCode () {
+        return base.GetHashCode();
     }
 }
 
@@ -43,8 +108,13 @@ public class Piece : MonoBehaviour {
     public bool kingChessMovement;
     public bool pawnCheckersMovement;
 
+    public bool isWhite;
+
     [HideInInspector]
     public Board board;
+
+    [HideInInspector]
+    public Game game;
 
     [HideInInspector]
     public Position position;
@@ -90,8 +160,10 @@ public class Piece : MonoBehaviour {
     private List<Move> PossibleMoves () {
         List<Move> possibleMoves = new List<Move>();
 
-        if (orthoMovement) {
-            possibleMoves.AddRange(GetOrthoMoves());
+        if (game.isWhitesTurn == isWhite) {
+            if (orthoMovement) {
+                possibleMoves.AddRange(GetOrthoMoves());
+            }
         }
 
         return possibleMoves;
@@ -99,11 +171,7 @@ public class Piece : MonoBehaviour {
 
     public void OnClick () {
         List<Move> possibleMoves = PossibleMoves();
-
+        board.previousMoves = possibleMoves;
         board.MarkFields(position, possibleMoves);
-
-        foreach (Move move in possibleMoves) {
-            Debug.Log(move);
-        }
     }
 }

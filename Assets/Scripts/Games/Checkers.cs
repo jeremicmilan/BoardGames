@@ -7,28 +7,28 @@ public class Checkers : Game {
         : base(GameName.CHECKERS, "Checkers", "", null) { }
 
     void SetBoardAndPieces() {
-        board = Object.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
+        GameObject boardObject = Object.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
 
-        Board boardScript = board.GetComponent<Board>();
-        boardScript.BuildBoard(8, 8, BoardType.CHECKERED);
+        board = boardObject.GetComponent<Board>();
+        board.BuildBoard(8, 8, BoardType.CHECKERED);
 
-        boardScript.SetPieces(new PieceType[,] { { PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK },
-                                                 { PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE },
-                                                 { PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK },
-                                                 { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                                 { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                                 { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                                 { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                                 { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE }},
+        board.SetPieces(new PieceType[,] { { PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK },
+                                           { PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE }},
                               true);
-        boardScript.SetPieces(new PieceType[,] { { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                                 { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                                 { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                                 { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                                 { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                                 { PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE },
-                                                 { PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK },
-                                                 { PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE }},
+        board.SetPieces(new PieceType[,] { { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK },
+                                           { PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.ROOK, PieceType.NONE }},
                               false);
     }
 

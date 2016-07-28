@@ -8,7 +8,7 @@ public abstract class Game {
     public string description;
     public GameObject picture;
 
-    public GameObject board;
+    public Board board;
 
     public bool isWhitesTurn;
 

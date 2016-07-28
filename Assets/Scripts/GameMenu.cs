@@ -10,6 +10,9 @@ public class GameMenu : MonoBehaviour {
 
     public Text gameTitle;
 
+    public UI ui;
+    public Canvas gameUI;
+
     private Game FindGame (GameName gameName) {
         foreach (Game game in gameList) {
             if (game.gameName == gameName) {
@@ -27,14 +30,13 @@ public class GameMenu : MonoBehaviour {
 
     public void StartSinglePlayer () {
         UI ui = GameObject.Find("UI").GetComponent<UI>();
-        ui.setActiveUI(GameObject.FindGameObjectWithTag("game ui").GetComponent<Canvas>());
+        ui.setActiveUI(gameUI);
 
         game.StartSinglePlayer();
     }
 
     public void StartTwoPlayer () {
-        UI ui = GameObject.Find("UI").GetComponent<UI>();
-        ui.setActiveUI(GameObject.FindGameObjectWithTag("game ui").GetComponent<Canvas>());
+        ui.setActiveUI(gameUI);
 
         game.StartTwoPlayer();
     }

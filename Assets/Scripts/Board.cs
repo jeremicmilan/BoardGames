@@ -21,19 +21,28 @@ public class Board : MonoBehaviour {
     public GameObject knight;
 
     [HideInInspector]
-    public GameObject[,] board;
+    public Field[,] board;
 
     public GameObject markerSelected;
     public GameObject markerPossible;
     public GameObject markerAttack;
+    public GameObject markerPreviousMove;
 
     [HideInInspector]
     public List<GameObject> markers = new List<GameObject>();
 
+    [HideInInspector]
+    public Position previousPositionClicked;
+    [HideInInspector]
+    public List<Move> previousMoves;
+
+    [HideInInspector]
+    public Game game;
+
     public void BuildBoard (int width, int height, BoardType boardType, GameObject[,] customLayout = null) {
         this.width = width;
         this.height = height;
-        board = new GameObject[height,width];
+        board = new Field[height,width];
 
         Vector3 size = blackField.GetComponent<Renderer>().bounds.size;
         float sizeX = size.x;
@@ -43,31 +52,35 @@ public class Board : MonoBehaviour {
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                GameObject field = null;
+                GameObject fieldPrefab = null;
 
                 switch (boardType) {
                     case BoardType.CHECKERED:
-                        field = (i + j) % 2 == 1 ? blackField : whiteField;
+                        fieldPrefab = (i + j) % 2 == 1 ? blackField : whiteField;
                         break;
                     case BoardType.UNCHECKERED:
-                        field = whiteField;
+                        fieldPrefab = whiteField;
                         break;
                     case BoardType.CUSTOM:
-                        field = customLayout[j, i];
+                        fieldPrefab = customLayout[j, i];
                         break;
                     default:
                         break;
                 }
 
-                GameObject instantiatedField = (GameObject)Instantiate(field,
-                                                                       scaleFactor * (initialPosition + sizeX * new Vector3(i, j, 0)),
-                                                                       Quaternion.identity);
+                GameObject fieldObject = (GameObject)Instantiate(fieldPrefab,
+                                                                 scaleFactor * (initialPosition + sizeX * new Vector3(i, j, 0)),
+                                                                 Quaternion.identity);
 
-                instantiatedField.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
-                instantiatedField.transform.parent = gameObject.transform;
-                instantiatedField.GetComponent<Field>().position = new Position(i, j, instantiatedField.GetComponent<Field>());
+                fieldObject.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+                fieldObject.transform.parent = gameObject.transform;
+                fieldObject.GetComponent<Field>().position = new Position(i, j, fieldObject.GetComponent<Field>());
 
-                board[j, i] = instantiatedField;
+                Field field = fieldObject.GetComponent<Field>();
+
+                field.board = this;
+
+                board[j, i] = field;
             }
         }
     }
@@ -75,36 +88,39 @@ public class Board : MonoBehaviour {
     public void SetPieces (PieceType[,] pieceLayout, bool isWhite) {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                GameObject piece = null;
+                GameObject pieceObject = null;
 
                 switch(pieceLayout[i, j]) {
                     case PieceType.ROOK:
-                        piece = Instantiate(rook);
+                        pieceObject = Instantiate(rook);
                         break;
                     case PieceType.KING:
-                        piece = Instantiate(king);
+                        pieceObject = Instantiate(king);
                         break;
                     default:
                         continue;
                 }
+
+                Piece piece = pieceObject.GetComponent<Piece>();
+
                 piece.transform.parent = board[j, i].transform;
                 piece.transform.localPosition = new Vector3(0, 0, -1);
                 piece.transform.localScale = board[j, i].transform.localScale;
 
                 if (!isWhite) {
-                    piece.transform.GetComponent<Renderer>().material.color = Color.gray;
+                    pieceObject.transform.GetComponent<Renderer>().material.color = Color.gray;
                 }
 
-                Piece pieceScript = piece.GetComponent<Piece>();
-
-                pieceScript.board = this;
-                pieceScript.position = new Position(i, j, GetField(i, j));
+                piece.board = this;
+                piece.position = new Position(i, j, GetField(i, j));
+                piece.game = game;
+                piece.isWhite = isWhite;
             }
         }
     }
 
     public bool IsOcupied (int x, int y) {
-        return board[y, x].GetComponent<Field>().FindPiece();
+        return board[y, x].FindPiece();
     }
 
     public bool IsOcupied (Position position) {
@@ -112,7 +128,7 @@ public class Board : MonoBehaviour {
     }
 
     public Field GetField (int x, int y) {
-        return board[y, x].GetComponent<Field>();
+        return board[y, x];
     }
 
     public Field GetField (Position position) {
@@ -158,5 +174,22 @@ public class Board : MonoBehaviour {
 
     public void MarkSelected (Position start) {
         MarkFields(start, new List<Move>());
+    }
+
+    public bool CanMakeMove (Move move) {
+        return previousMoves != null && previousMoves.Contains(move);
+    }
+
+    public void MakeMove (Move move) {
+        Piece piece = move.start.field.FindPiece();
+
+        piece.transform.parent = move.end.field.transform;
+        piece.position = move.end;
+
+        piece.transform.localPosition = new Vector3(0, 0, -1);
+
+        game.isWhitesTurn = !game.isWhitesTurn;
+
+        ClearMarkers();
     }
 }

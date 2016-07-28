@@ -6,10 +6,13 @@ public class Field : MonoBehaviour {
     [HideInInspector]
     public Position position;
 
-    public GameObject FindPiece () {
+    [HideInInspector]
+    public Board board;
+
+    public Piece FindPiece () {
         for (int i = 0; i < transform.childCount; i++) {
             if (transform.GetChild(i).GetComponent<Piece>()) {
-                return transform.GetChild(i).gameObject;
+                return transform.GetChild(i).GetComponent<Piece>();
             }
         }
 
@@ -17,11 +20,17 @@ public class Field : MonoBehaviour {
     }
 
 	void OnMouseDown () {
-        GameObject piece = FindPiece();
+        Piece piece = FindPiece();
+        Move move = new Move(board.previousPositionClicked, position);
+
         if (piece) {
-            piece.GetComponent<Piece>().OnClick();
+            piece.OnClick();
+        } else if (board.CanMakeMove(move)) {
+            board.MakeMove(move);
         } else {
             transform.parent.GetComponent<Board>().MarkSelected(position);
         }
+
+        board.previousPositionClicked = position;
     }
 }
