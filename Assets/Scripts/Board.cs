@@ -97,6 +97,15 @@ public class Board : MonoBehaviour {
                     case PieceType.KING:
                         pieceObject = Instantiate(king);
                         break;
+                    case PieceType.BISHOP:
+                        pieceObject = Instantiate(bishop);
+                        break;
+                    case PieceType.KINGHT:
+                        pieceObject = Instantiate(knight);
+                        break;
+                    case PieceType.PAWN:
+                        pieceObject = Instantiate(pawn);
+                        break;
                     default:
                         continue;
                 }

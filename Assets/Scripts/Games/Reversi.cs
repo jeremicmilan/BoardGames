@@ -10,6 +10,8 @@ public class Reversi : Game {
         GameObject boardObject = Object.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
 
         board = boardObject.GetComponent<Board>();
+        board.game = this;
+
         board.BuildBoard(8, 8, BoardType.UNCHECKERED);
 
         board.SetPieces(new PieceType[,] { { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
