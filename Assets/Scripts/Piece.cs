@@ -264,16 +264,12 @@ public class Piece : MonoBehaviour {
 
         if (PositionOnBoard(position.x, position.y + orientation) && !board.IsOcupied(position.x, position.y + orientation))
             possibleMoves.Add(new Move(position, new Position(position.x, position.y + orientation, board.GetField(position.x, position.y + orientation))));
-<<<<<<< HEAD
-        
+      
         if (position.y == 6 && isWhite && !board.IsOcupied(position.x, position.y - 2))
             possibleMoves.Add(new Move(position, new Position(position.x, position.y - 2, board.GetField(position.x, position.y - 2))));
 
         if (position.y == 1 && !isWhite && !board.IsOcupied(position.x, position.y + 2))
             possibleMoves.Add(new Move(position, new Position(position.x, position.y + 2, board.GetField(position.x, position.y + 2))));
-=======
-
->>>>>>> origin/master
 
         return possibleMoves;
     }
@@ -374,10 +370,6 @@ public class Piece : MonoBehaviour {
             if (kingCheckersMovement) {
                 possibleMoves.AddRange(GetKingCheckersMoves());
             }
-<<<<<<< HEAD
-            
-=======
->>>>>>> origin/master
         }
 
         return possibleMoves;
