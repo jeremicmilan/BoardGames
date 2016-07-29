@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public enum BoardType { CHECKERED, CUSTOM, UNCHECKERED };
-public enum PieceType { PAWN, KING, ROOK, BISHOP, KINGHT, QUEEN, NONE };
+public enum PieceType { PAWN, KING, ROOK, BISHOP, KINGHT, QUEEN, NONE, C_PAWN };
 
 public class Board : MonoBehaviour {
 
@@ -19,6 +20,7 @@ public class Board : MonoBehaviour {
     public GameObject bishop;
     public GameObject pawn;
     public GameObject knight;
+    public GameObject c_pawn;
 
     [HideInInspector]
     public Field[,] board;
@@ -48,7 +50,7 @@ public class Board : MonoBehaviour {
         float sizeX = size.x;
 
         float scaleFactor = 1.5f * Mathf.Min(((float)Screen.width / width) / 300f, ((float)Screen.height / height) / 300f);
-        Vector3 initialPosition = -sizeX * new Vector3(width / 2f, height / 2f, 0) + size / 2;
+        Vector3 initialPosition = -sizeX * new Vector3(width / 2f, height / 2f, 0) + size / 2 + new Vector3(5, 0, 0);
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -96,6 +98,21 @@ public class Board : MonoBehaviour {
                         break;
                     case PieceType.KING:
                         pieceObject = Instantiate(king);
+                        break;
+                    case PieceType.BISHOP:
+                        pieceObject = Instantiate(bishop);
+                        break;
+                    case PieceType.KINGHT:
+                        pieceObject = Instantiate(knight);
+                        break;
+                    case PieceType.PAWN:
+                        pieceObject = Instantiate(pawn);
+                        break;
+                    case PieceType.QUEEN:
+                        pieceObject = Instantiate(queen);
+                        break;
+                    case PieceType.C_PAWN:
+                        pieceObject = Instantiate(c_pawn);
                         break;
                     default:
                         continue;
@@ -191,5 +208,21 @@ public class Board : MonoBehaviour {
         game.isWhitesTurn = !game.isWhitesTurn;
 
         ClearMarkers();
+
+        Text OnTheMove =  GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text> ();
+        if (game.isWhitesTurn)
+            OnTheMove.text = "White is on the move";
+        else
+            OnTheMove.text = "Black is on the move";
+    }
+
+    public void QuitGame(UI ui) {
+
+        GameObject board = GameObject.FindGameObjectWithTag("board");
+        board.SetActive(false);
+        
+        ui.mainMenu.enabled = true;
+        ui.gameMenu.enabled = false;
+        ui.gameUI.enabled = false;
     }
 }
