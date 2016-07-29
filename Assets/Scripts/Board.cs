@@ -108,12 +108,15 @@ public class Board : MonoBehaviour {
                     case PieceType.PAWN:
                         pieceObject = Instantiate(pawn);
                         break;
+<<<<<<< HEAD
                     case PieceType.QUEEN:
                         pieceObject = Instantiate(queen);
                         break;
                     case PieceType.C_PAWN:
                         pieceObject = Instantiate(c_pawn);
                         break;
+=======
+>>>>>>> origin/master
                     default:
                         continue;
                 }

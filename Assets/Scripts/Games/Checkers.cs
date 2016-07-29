@@ -14,6 +14,7 @@ public class Checkers : Game {
 
         board.BuildBoard(8, 8, BoardType.CHECKERED);
 
+<<<<<<< HEAD
         board.SetPieces(new PieceType[,] { { PieceType.NONE,    PieceType.C_PAWN,   PieceType.NONE,     PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
                                            { PieceType.C_PAWN,  PieceType.NONE,     PieceType.C_PAWN,   PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
                                            { PieceType.NONE,    PieceType.C_PAWN,   PieceType.NONE,     PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
@@ -31,6 +32,25 @@ public class Checkers : Game {
                                            { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE,    PieceType.C_PAWN,   PieceType.NONE },
                                            { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.C_PAWN,  PieceType.NONE,     PieceType.C_PAWN },
                                            { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE,    PieceType.C_PAWN,   PieceType.NONE }},
+=======
+        board.SetPieces(new PieceType[,] { { PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.PAWN, PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.PAWN, PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.PAWN, PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
+                                           { PieceType.PAWN, PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE }},
+                              false);
+        board.SetPieces(new PieceType[,] { { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.PAWN },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.PAWN, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.PAWN },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.PAWN, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.PAWN },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.PAWN, PieceType.NONE },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.PAWN, PieceType.NONE, PieceType.PAWN },
+                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.PAWN, PieceType.NONE }},
+>>>>>>> origin/master
                               true);
 
     }
