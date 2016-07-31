@@ -4,12 +4,15 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public enum BoardType { CHECKERED, CUSTOM, UNCHECKERED };
-public enum PieceType { PAWN, KING, ROOK, BISHOP, KINGHT, QUEEN, NONE, C_PAWN };
+public enum PieceType { PAWN, KING, ROOK, BISHOP, KNIGHT, QUEEN, NONE, C_PAWN };
 
 public class Board : MonoBehaviour {
 
     public GameObject blackField;
     public GameObject whiteField;
+    public GameObject castleField;
+    public GameObject escapeField;
+    public GameObject neutralField;
 
     public int width;
     public int height;
@@ -41,7 +44,7 @@ public class Board : MonoBehaviour {
     [HideInInspector]
     public Game game;
 
-    public void BuildBoard (int width, int height, BoardType boardType, GameObject[,] customLayout = null) {
+    public void BuildBoard (int width, int height, BoardType boardType, FieldType[,] customLayout = null) {
         this.width = width;
         this.height = height;
         board = new Field[height,width];
@@ -64,7 +67,23 @@ public class Board : MonoBehaviour {
                         fieldPrefab = whiteField;
                         break;
                     case BoardType.CUSTOM:
-                        fieldPrefab = customLayout[j, i];
+                        switch (customLayout[j, i]) {
+                            case FieldType.BLACK:
+                                fieldPrefab = blackField;
+                                break;
+                            case FieldType.WHITE:
+                                fieldPrefab = whiteField;
+                                break;
+                            case FieldType.CASTLE:
+                                fieldPrefab = castleField;
+                                break;
+                            case FieldType.ESCAPE:
+                                fieldPrefab = escapeField;
+                                break;
+                            case FieldType.NEUTRAL:
+                                fieldPrefab = neutralField;
+                                break;
+                        }
                         break;
                     default:
                         break;
@@ -76,10 +95,10 @@ public class Board : MonoBehaviour {
 
                 fieldObject.transform.localScale = new Vector3(scaleFactor, scaleFactor, scaleFactor);
                 fieldObject.transform.parent = gameObject.transform;
-                fieldObject.GetComponent<Field>().position = new Position(i, j, fieldObject.GetComponent<Field>());
 
                 Field field = fieldObject.GetComponent<Field>();
 
+                field.position = new Position(i, j, field);
                 field.board = this;
 
                 board[j, i] = field;
@@ -102,7 +121,7 @@ public class Board : MonoBehaviour {
                     case PieceType.BISHOP:
                         pieceObject = Instantiate(bishop);
                         break;
-                    case PieceType.KINGHT:
+                    case PieceType.KNIGHT:
                         pieceObject = Instantiate(knight);
                         break;
                     case PieceType.PAWN:
@@ -152,8 +171,31 @@ public class Board : MonoBehaviour {
         return GetField(position.x, position.y);
     }
 
+    public Piece GetPiece (int x, int y) {
+        return board[y, x].FindPiece();
+    }
+
+    public Piece GetPiece (Position position) {
+        return GetPiece(position.x, position.y);
+    }
+
+    public bool ValidPosition (int x, int y) {
+        if (x >= 0 && x < width && y >= 0 && y < height)
+            return true;
+        else
+            return false;
+    }
+
+    public bool ValidPosition (Position position) {
+        return ValidPosition(position.x, position.y);
+    }
+
     public bool CanJumpOver (int x, int y) {
         return false;
+    }
+
+    public bool CanJumpOver (Position position) {
+        return CanJumpOver(position.x, position.y);
     }
 
     public void ClearMarkers () {
@@ -181,7 +223,7 @@ public class Board : MonoBehaviour {
         MakeMarker(start, markerSelected);
 
         foreach (Move move in possibleMoves) {
-            if (move.end.field.FindPiece()) {
+            if (game.Attack(move, false)) {
                 MakeMarker(move.end, markerAttack);
             } else {
                 MakeMarker(move.end, markerPossible);
@@ -205,6 +247,8 @@ public class Board : MonoBehaviour {
 
         piece.transform.localPosition = new Vector3(0, 0, -1);
 
+        game.Attack(move);
+
         game.isWhitesTurn = !game.isWhitesTurn;
 
         ClearMarkers();
@@ -214,15 +258,5 @@ public class Board : MonoBehaviour {
             OnTheMove.text = "White is on the move";
         else
             OnTheMove.text = "Black is on the move";
-    }
-
-    public void QuitGame(UI ui) {
-
-        GameObject board = GameObject.FindGameObjectWithTag("board");
-        board.SetActive(false);
-        
-        ui.mainMenu.enabled = true;
-        ui.gameMenu.enabled = false;
-        ui.gameUI.enabled = false;
     }
 }
