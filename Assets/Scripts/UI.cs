@@ -17,9 +17,14 @@ public class UI : MonoBehaviour {
         ui.enabled = true;
     }
 
-    public void exitApp()
-    {
+    public void exitApp () {
         Application.Quit();
+    }
+
+    public void QuitGame () {
+        Destroy(GameObject.FindGameObjectWithTag("board"));
+
+        setActiveUI(mainMenu);
     }
 
 }
