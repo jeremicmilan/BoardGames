@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class Checkers : Game {
 
     public Checkers ()
         : base(GameName.CHECKERS, "Checkers", "", null) { }
 
-    void SetBoardAndPieces() {
-        GameObject boardObject = Object.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
+    void SetBoardAndPieces () {
+        GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
 
         board = boardObject.GetComponent<Board>();
         board.game = this;
@@ -42,5 +43,9 @@ public class Checkers : Game {
 
     public override void StartTwoPlayer () {
         SetBoardAndPieces();
+    }
+
+    public override bool Attack (Move move, bool destroy = true) {
+        throw new NotImplementedException();
     }
 }

@@ -21,4 +21,6 @@ public abstract class Game {
 
     public abstract void StartSinglePlayer ();
     public abstract void StartTwoPlayer ();
+
+    public abstract bool Attack (Move move, bool destroy = true);
 }
