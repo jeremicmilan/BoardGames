@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum FieldType { BLACK, WHITE, CASTLE, ESCAPE, NEUTRAL }
+
 public class Field : MonoBehaviour {
+
+    public FieldType fieldType;
 
     [HideInInspector]
     public Position position;
@@ -23,10 +27,10 @@ public class Field : MonoBehaviour {
         Piece piece = FindPiece();
         Move move = new Move(board.previousPositionClicked, position);
 
-        if (piece) {
-            piece.OnClick();
-        } else if (board.CanMakeMove(move)) {
+        if (board.CanMakeMove(move)) {
             board.MakeMove(move);
+        } else if (piece) {
+            piece.OnClick();
         } else {
             transform.parent.GetComponent<Board>().MarkSelected(position);
         }
