@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum FieldType { BLACK, WHITE, CASTLE, ESCAPE, NEUTRAL }
+public enum FieldType { BLACK, WHITE, CASTL, ESCAP, NEUTR }
 
 public class Field : MonoBehaviour {
 

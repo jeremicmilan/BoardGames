@@ -14,35 +14,35 @@ public class VikingChess : Game {
         board.game = this;
 
         board.BuildBoard(9, 9, BoardType.CUSTOM,
-                         new FieldType[,] { { FieldType.ESCAPE,  FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.BLACK,   FieldType.BLACK,  FieldType.BLACK,   FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.ESCAPE  },
-                                            { FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.BLACK,  FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL },
-                                            { FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.WHITE,  FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL },
-                                            { FieldType.BLACK,   FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.WHITE,  FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.BLACK   },
-                                            { FieldType.BLACK,   FieldType.BLACK,   FieldType.WHITE,   FieldType.WHITE,   FieldType.CASTLE, FieldType.WHITE,   FieldType.WHITE,   FieldType.BLACK,   FieldType.BLACK   },
-                                            { FieldType.BLACK,   FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.WHITE,  FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.BLACK   },
-                                            { FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.WHITE,  FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL },
-                                            { FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.BLACK,  FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.NEUTRAL },
-                                            { FieldType.ESCAPE,  FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.BLACK,   FieldType.BLACK,  FieldType.BLACK,   FieldType.NEUTRAL, FieldType.NEUTRAL, FieldType.ESCAPE  }});
+                         new FieldType[,] { { FieldType.ESCAP, FieldType.NEUTR, FieldType.NEUTR, FieldType.BLACK, FieldType.BLACK, FieldType.BLACK, FieldType.NEUTR, FieldType.NEUTR, FieldType.ESCAP },
+                                            { FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.BLACK, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR },
+                                            { FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.WHITE, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR },
+                                            { FieldType.BLACK, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.WHITE, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.BLACK },
+                                            { FieldType.BLACK, FieldType.BLACK, FieldType.WHITE, FieldType.WHITE, FieldType.CASTL, FieldType.WHITE, FieldType.WHITE, FieldType.BLACK, FieldType.BLACK },
+                                            { FieldType.BLACK, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.WHITE, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.BLACK },
+                                            { FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.WHITE, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR },
+                                            { FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.BLACK, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR, FieldType.NEUTR },
+                                            { FieldType.ESCAP, FieldType.NEUTR, FieldType.NEUTR, FieldType.BLACK, FieldType.BLACK, FieldType.BLACK, FieldType.NEUTR, FieldType.NEUTR, FieldType.ESCAP } });
 
-        board.SetPieces(new PieceType[,] { { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.ROOK, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK },
-                                           { PieceType.ROOK, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.ROOK },
-                                           { PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.ROOK, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE }},
+        board.SetPieces(new PieceType[,] { { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK, PieceType.CH_ROOK, PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.VK_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK },
+                                           { PieceType.CH_ROOK, PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK, PieceType.CH_ROOK },
+                                           { PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK, PieceType.CH_ROOK, PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE } },
                         false);
-        board.SetPieces(new PieceType[,] { { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.ROOK, PieceType.KING, PieceType.ROOK, PieceType.ROOK, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.ROOK, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE },
-                                           { PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE, PieceType.NONE }},
+        board.SetPieces(new PieceType[,] { { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK, PieceType.CH_ROOK, PieceType.VK_KING, PieceType.CH_ROOK, PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CH_ROOK, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE } },
                         true);
     }
 
@@ -74,7 +74,7 @@ public class VikingChess : Game {
 
         bool attacked = false;
 
-        if (piece.pieceType == PieceType.ROOK) {
+        if (piece.pieceType == PieceType.CH_ROOK) {
             if (Attack(move.end, new Position(1, 0, null), destroy)) {
                 attacked = true;
             }
