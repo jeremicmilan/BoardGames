@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class Position {
     public int x;
@@ -163,7 +164,7 @@ public class Piece : MonoBehaviour {
         return possibleMoves;
     }
 
-    private List<Move> GetOrthoMoves () {
+    private List<Move> GetOrthoMoves() {
         List<Move> possibleMoves = new List<Move>();
 
         possibleMoves.AddRange(GetOrthoMoves(new Position(1, 0, null)));
@@ -174,20 +175,41 @@ public class Piece : MonoBehaviour {
         return possibleMoves;
     }
 
+    private List<Move> GetSingleOrthoMoves(Position direction) {
+        List<Move> possibleMoves = new List<Move>();
+
+        Position pos = position + direction;
+        
+        if (board.ValidPosition(pos) && !board.IsOcupied(pos)) 
+            possibleMoves.Add(new Move(position, pos));
+               
+        return possibleMoves;
+    
+    }
+
+
     private List<Move> GetSingleOrthoMoves() {
         List<Move> possibleMoves = new List<Move>();
 
-        if (position.x + 1 < board.width && !board.IsOcupied(position.x + 1, position.y))
-            possibleMoves.Add(new Move(position, new Position(position.x + 1, position.y, board.GetField(position.x + 1, position.y))));
+        possibleMoves.AddRange(GetSingleOrthoMoves(new Position(1, 0, null)));
+        possibleMoves.AddRange(GetSingleOrthoMoves(new Position(-1, 0, null)));
+        possibleMoves.AddRange(GetSingleOrthoMoves(new Position(0, 1, null)));
+        possibleMoves.AddRange(GetSingleOrthoMoves(new Position(0, -1, null)));
 
-        if (position.x - 1 >= 0 && !board.IsOcupied(position.x - 1, position.y))
-            possibleMoves.Add(new Move(position, new Position(position.x - 1, position.y, board.GetField(position.x - 1, position.y))));
+        return possibleMoves;
+    }
 
-        if (position.y + 1 < board.height && !board.IsOcupied(position.x, position.y + 1))
-            possibleMoves.Add(new Move(position, new Position(position.x, position.y + 1, board.GetField(position.x, position.y + 1))));
+    private List<Move> GetDiagonalMoves(Position direction) {
+        List<Move> possibleMoves = new List<Move>();
 
-        if (position.y - 1 >= 0 && !board.IsOcupied(position.x, position.y - 1))
-            possibleMoves.Add(new Move(position, new Position(position.x, position.y - 1, board.GetField(position.x, position.y - 1))));
+        Position pos = position + direction;
+        for (int i = 1; board.ValidPosition(pos); i++, pos = position + i * direction) {
+            if (!board.IsOcupied(pos)) {
+                possibleMoves.Add(new Move(position, pos));
+            } else if (!board.CanJumpOver(pos)) {
+                break;
+            }
+        }
 
         return possibleMoves;
     }
@@ -195,37 +217,21 @@ public class Piece : MonoBehaviour {
     private List<Move> GetDiagonalMoves() {
         List<Move> possibleMoves = new List<Move>();
 
-        for (int i = position.x + 1, j = position.y + 1; i < board.width && j < board.height; i++, j++) {
-            if (!board.IsOcupied(i, j)) {
-                possibleMoves.Add(new Move(position, new Position(i, j, board.GetField(i, j))));
-            } else if (!board.CanJumpOver(i, j)) {
-                break;
-            }
-        }
+        possibleMoves.AddRange(GetDiagonalMoves(new Position(1, 1, null)));
+        possibleMoves.AddRange(GetDiagonalMoves(new Position(1, -1, null)));
+        possibleMoves.AddRange(GetDiagonalMoves(new Position(-1, 1, null)));
+        possibleMoves.AddRange(GetDiagonalMoves(new Position(-1, -1, null)));
 
-        for (int i = position.x + 1, j = position.y - 1; i < board.width && j >= 0; i++, j--) {
-            if (!board.IsOcupied(i, j)) {
-                possibleMoves.Add(new Move(position, new Position(i, j, board.GetField(i, j))));
-            } else if (!board.CanJumpOver(i, j)) {
-                break;
-            }
-        }
+        return possibleMoves;
+    }
 
-        for (int i = position.x - 1, j = position.y + 1; i >= 0 && j < board.height; i--, j++) {
-            if (!board.IsOcupied(i, j)) {
-                possibleMoves.Add(new Move(position, new Position(i, j, board.GetField(i, j))));
-            } else if (!board.CanJumpOver(i, j)) {
-                break;
-            }
-        }
+    private List<Move> GetKnightMoves(Position direction) {
+        List<Move> possibleMoves = new List<Move>();
 
-        for (int i = position.x - 1, j = position.y - 1; i >= 0 && j >= 0; i--, j--) {
-            if (!board.IsOcupied(i, j)) {
-                possibleMoves.Add(new Move(position, new Position(i, j, board.GetField(i, j))));
-            } else if (!board.CanJumpOver(i, j)) {
-                break;
-            }
-        }
+        Position pos = position + direction;
+
+        if (board.ValidPosition(pos) && !board.IsOcupied(pos))
+            possibleMoves.Add(new Move(position, pos));
 
         return possibleMoves;
     }
@@ -233,29 +239,26 @@ public class Piece : MonoBehaviour {
     private List<Move> GetKnightMoves() {
         List<Move> possibleMoves = new List<Move>();
 
-        if (board.ValidPosition(position.x + 2, position.y + 1) && !board.IsOcupied(position.x + 2, position.y + 1))
-            possibleMoves.Add(new Move(position, new Position(position.x + 2, position.y + 1, board.GetField(position.x + 2, position.y + 1))));
+        possibleMoves.AddRange(GetKnightMoves(new Position(2, 1, null)));
+        possibleMoves.AddRange(GetKnightMoves(new Position(2, -1, null)));
+        possibleMoves.AddRange(GetKnightMoves(new Position(-2, 1, null)));
+        possibleMoves.AddRange(GetKnightMoves(new Position(-2, -1, null)));
+        possibleMoves.AddRange(GetKnightMoves(new Position(1, 2, null)));
+        possibleMoves.AddRange(GetKnightMoves(new Position(1, -2, null)));
+        possibleMoves.AddRange(GetKnightMoves(new Position(-1, 2, null)));
+        possibleMoves.AddRange(GetKnightMoves(new Position(-1, -2, null)));
 
-        if (board.ValidPosition(position.x + 2, position.y - 1) && !board.IsOcupied(position.x + 2, position.y - 1))
-            possibleMoves.Add(new Move(position, new Position(position.x + 2, position.y - 1, board.GetField(position.x + 2, position.y - 1))));
+       
+        return possibleMoves;
+    }
 
-        if (board.ValidPosition(position.x - 2, position.y + 1) && !board.IsOcupied(position.x - 2, position.y + 1))
-            possibleMoves.Add(new Move(position, new Position(position.x - 2, position.y + 1, board.GetField(position.x - 2, position.y + 1))));
+    private List<Move> GetPawnChessMoves(Position direction) {
+        List<Move> possibleMoves = new List<Move>();
 
-        if (board.ValidPosition(position.x - 2, position.y - 1) && !board.IsOcupied(position.x - 2, position.y - 1))
-            possibleMoves.Add(new Move(position, new Position(position.x - 2, position.y - 1, board.GetField(position.x - 2, position.y - 1))));
+        Position pos = position + direction;
 
-        if (board.ValidPosition(position.x + 1, position.y + 2) && !board.IsOcupied(position.x + 1, position.y + 2))
-            possibleMoves.Add(new Move(position, new Position(position.x + 1, position.y + 2, board.GetField(position.x + 1, position.y + 2))));
-
-        if (board.ValidPosition(position.x + 1, position.y - 2) && !board.IsOcupied(position.x + 1, position.y - 2))
-            possibleMoves.Add(new Move(position, new Position(position.x + 1, position.y - 2, board.GetField(position.x + 1, position.y - 2))));
-
-        if (board.ValidPosition(position.x - 1, position.y + 2) && !board.IsOcupied(position.x - 1, position.y + 2))
-            possibleMoves.Add(new Move(position, new Position(position.x - 1, position.y + 2, board.GetField(position.x - 1, position.y + 2))));
-
-        if (board.ValidPosition(position.x - 1, position.y - 2) && !board.IsOcupied(position.x - 1, position.y - 2))
-            possibleMoves.Add(new Move(position, new Position(position.x - 1, position.y - 2, board.GetField(position.x - 1, position.y - 2))));
+        if (board.ValidPosition(pos) && !board.IsOcupied(pos))
+            possibleMoves.Add(new Move(position, pos));
 
         return possibleMoves;
     }
@@ -263,21 +266,26 @@ public class Piece : MonoBehaviour {
     private List<Move> GetPawnChessMoves() {
         List<Move> possibleMoves = new List<Move>();
 
-        int orientation;
+        if (isWhite) {
+            possibleMoves.AddRange(GetPawnChessMoves(new Position(0, -1, null)));
+            if(position.y == 6 )
+                possibleMoves.AddRange(GetPawnChessMoves(new Position(0, -2, null)));
+        } else {
+            possibleMoves.AddRange(GetPawnChessMoves(new Position(0, 1, null)));
+            if (position.y == 1)
+                possibleMoves.AddRange(GetPawnChessMoves(new Position(0, 2, null)));
+        }
+        
+        return possibleMoves;
+    }
 
-        if (isWhite)
-            orientation = -1;
-        else
-            orientation = 1;
+    private List<Move> GetKingChessMoves(Position direction) {
+        List<Move> possibleMoves = new List<Move>();
 
-        if (board.ValidPosition(position.x, position.y + orientation) && !board.IsOcupied(position.x, position.y + orientation))
-            possibleMoves.Add(new Move(position, new Position(position.x, position.y + orientation, board.GetField(position.x, position.y + orientation))));
-      
-        if (position.y == 6 && isWhite && !board.IsOcupied(position.x, position.y - 2))
-            possibleMoves.Add(new Move(position, new Position(position.x, position.y - 2, board.GetField(position.x, position.y - 2))));
+        Position pos = position + direction;
 
-        if (position.y == 1 && !isWhite && !board.IsOcupied(position.x, position.y + 2))
-            possibleMoves.Add(new Move(position, new Position(position.x, position.y + 2, board.GetField(position.x, position.y + 2))));
+        if (board.ValidPosition(pos) && !board.IsOcupied(pos))
+            possibleMoves.Add(new Move(position, pos));
 
         return possibleMoves;
     }
@@ -285,49 +293,65 @@ public class Piece : MonoBehaviour {
     private List<Move> GetKingChessMoves() {
         List<Move> possibleMoves = new List<Move>();
 
-        if (board.ValidPosition(position.x + 1, position.y + 1) && !board.IsOcupied(position.x + 1, position.y + 1))
-            possibleMoves.Add(new Move(position, new Position(position.x + 1, position.y + 1, board.GetField(position.x + 1, position.y + 1))));
+        possibleMoves.AddRange(GetKingChessMoves(new Position(1, 0, null)));
+        possibleMoves.AddRange(GetKingChessMoves(new Position(1, 1, null)));
+        possibleMoves.AddRange(GetKingChessMoves(new Position(1, -1, null)));
+        possibleMoves.AddRange(GetKingChessMoves(new Position(0, 1, null)));
+        possibleMoves.AddRange(GetKingChessMoves(new Position(0, -1, null)));
+        possibleMoves.AddRange(GetKingChessMoves(new Position(-1, 0, null)));
+        possibleMoves.AddRange(GetKingChessMoves(new Position(-1, 1, null)));
+        possibleMoves.AddRange(GetKingChessMoves(new Position(-1, -1, null)));
 
-        if (board.ValidPosition(position.x + 1, position.y - 1) && !board.IsOcupied(position.x + 1, position.y - 1))
-            possibleMoves.Add(new Move(position, new Position(position.x + 1, position.y - 1, board.GetField(position.x + 1, position.y - 1))));
 
-        if (board.ValidPosition(position.x - 1, position.y + 1) && !board.IsOcupied(position.x - 1, position.y + 1))
-            possibleMoves.Add(new Move(position, new Position(position.x - 1, position.y + 1, board.GetField(position.x - 1, position.y + 1))));
+        return possibleMoves;
+    }
 
-        if (board.ValidPosition(position.x - 1, position.y - 1) && !board.IsOcupied(position.x - 1, position.y - 1))
-            possibleMoves.Add(new Move(position, new Position(position.x - 1, position.y - 1, board.GetField(position.x - 1, position.y - 1))));
+    private List<Move> GetPawnCheckersMoves(Position direction) {
+        List<Move> possibleMoves = new List<Move>();
 
-        if (board.ValidPosition(position.x, position.y + 1) && !board.IsOcupied(position.x, position.y + 1))
-            possibleMoves.Add(new Move(position, new Position(position.x, position.y + 1, board.GetField(position.x, position.y + 1))));
-
-        if (board.ValidPosition(position.x, position.y - 1) && !board.IsOcupied(position.x, position.y - 1))
-            possibleMoves.Add(new Move(position, new Position(position.x, position.y - 1, board.GetField(position.x, position.y - 1))));
-
-        if (board.ValidPosition(position.x + 1, position.y) && !board.IsOcupied(position.x + 1, position.y))
-            possibleMoves.Add(new Move(position, new Position(position.x + 1, position.y, board.GetField(position.x + 1, position.y))));
-
-        if (board.ValidPosition(position.x - 1, position.y) && !board.IsOcupied(position.x - 1, position.y))
-            possibleMoves.Add(new Move(position, new Position(position.x - 1, position.y, board.GetField(position.x - 1, position.y))));
-
+        Position pos = position + direction;
+        
+        if (board.ValidPosition(pos) && !board.IsOcupied(pos))
+            if (Math.Abs(direction.x) == 2) {
+                if (board.IsOcupied(position + new Position(direction.x / 2, direction.y / 2, null)))
+                    if (board.GetField(position + new Position(direction.x / 2, direction.y / 2, null)).FindPiece().isWhite != isWhite)
+                        possibleMoves.Add(new Move(position, pos));
+            } else
+                possibleMoves.Add(new Move(position, pos));
 
         return possibleMoves;
     }
 
     private List<Move> GetPawnCheckersMoves() {
         List<Move> possibleMoves = new List<Move>();
+        
+        if (isWhite) {
+            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(1, -1, null)));
+            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-1, -1, null)));
+            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(2, -2, null)));
+            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-2, -2, null)));
+        } else {
+            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(1, 1, null)));
+            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-1, 1, null)));
+            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(2, 2, null)));
+            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-2, 2, null)));
+        }
+        
+        return possibleMoves;
+    }
 
-        int orientation;
+    private List<Move> GetKingCheckersMoves(Position direction) {
+        List<Move> possibleMoves = new List<Move>();
 
-        if (isWhite)
-            orientation = -1;
-        else
-            orientation = 1;
+        Position pos = position + direction;
 
-        if (board.ValidPosition(position.x +  1, position.y + orientation) && !board.IsOcupied(position.x + 1, position.y + orientation))
-            possibleMoves.Add(new Move(position, new Position(position.x + 1, position.y + orientation, board.GetField(position.x + 1, position.y + orientation))));
-
-        if (board.ValidPosition(position.x - 1, position.y + orientation) && !board.IsOcupied(position.x - 1, position.y + orientation))
-            possibleMoves.Add(new Move(position, new Position(position.x - 1, position.y + orientation, board.GetField(position.x - 1, position.y + orientation))));
+        if (board.ValidPosition(pos) && !board.IsOcupied(pos))
+            if (Math.Abs(direction.x) == 2) {
+                if (board.IsOcupied(position + new Position(direction.x / 2, direction.y / 2, null)))
+                    if (board.GetField(position + new Position(direction.x / 2, direction.y / 2, null)).FindPiece().isWhite != isWhite)
+                        possibleMoves.Add(new Move(position, pos));
+            } else
+                possibleMoves.Add(new Move(position, pos));
 
         return possibleMoves;
     }
@@ -335,17 +359,14 @@ public class Piece : MonoBehaviour {
     private List<Move> GetKingCheckersMoves() {
         List<Move> possibleMoves = new List<Move>();
 
-        if (board.ValidPosition(position.x + 1, position.y + 1) && !board.IsOcupied(position.x + 1, position.y + 1))
-            possibleMoves.Add(new Move(position, new Position(position.x + 1, position.y + 1, board.GetField(position.x + 1, position.y + 1))));
-
-        if (board.ValidPosition(position.x - 1, position.y + 1) && !board.IsOcupied(position.x - 1, position.y + 1))
-            possibleMoves.Add(new Move(position, new Position(position.x - 1, position.y + 1, board.GetField(position.x - 1, position.y + 1))));
-
-        if (board.ValidPosition(position.x + 1, position.y - 1) && !board.IsOcupied(position.x + 1, position.y - 1))
-            possibleMoves.Add(new Move(position, new Position(position.x + 1, position.y - 1, board.GetField(position.x + 1, position.y - 1))));
-
-        if (board.ValidPosition(position.x - 1, position.y - 1) && !board.IsOcupied(position.x - 1, position.y - 1))
-            possibleMoves.Add(new Move(position, new Position(position.x - 1, position.y - 1, board.GetField(position.x - 1, position.y - 1))));
+        possibleMoves.AddRange(GetKingCheckersMoves(new Position(1, -1, null)));
+        possibleMoves.AddRange(GetKingCheckersMoves(new Position(-1, -1, null)));
+        possibleMoves.AddRange(GetPawnCheckersMoves(new Position(2, -2, null)));
+        possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-2, -2, null)));
+        possibleMoves.AddRange(GetKingCheckersMoves(new Position(1, 1, null)));
+        possibleMoves.AddRange(GetKingCheckersMoves(new Position(-1, 1, null)));
+        possibleMoves.AddRange(GetPawnCheckersMoves(new Position(2, 2, null)));
+        possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-2, 2, null)));
 
         return possibleMoves;
     }
