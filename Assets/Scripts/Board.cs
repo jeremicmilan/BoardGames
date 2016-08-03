@@ -4,7 +4,11 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public enum BoardType { CHECKERED, CUSTOM, UNCHECKERED };
-public enum PieceType { PAWN, KING, ROOK, BISHOP, KNIGHT, QUEEN, NONE, C_PAWN };
+public enum PieceType { CH_PAWN, CH_KING, CH_KNIG, CH_BISH, CH_ROOK, CH_QUEE,
+                        VK_KING, VK_ROOK,
+                        CK_PAWN, CK_KING,
+                        RV_PAWN,
+                        AL_NONE };
 
 public class Board : MonoBehaviour {
 
@@ -17,13 +21,22 @@ public class Board : MonoBehaviour {
     public int width;
     public int height;
 
-    public GameObject rook;
-    public GameObject king;
-    public GameObject queen;
-    public GameObject bishop;
-    public GameObject pawn;
-    public GameObject knight;
-    public GameObject c_pawn;
+    // pieces
+    public GameObject chessPawn;
+    public GameObject chessKing;
+    public GameObject chessKnight;
+    public GameObject chessBishop;
+    public GameObject chessRook;
+    public GameObject chessQueen;
+
+    public GameObject vikingKing;
+    public GameObject vikingRook;
+
+    public GameObject checkersPawn;
+    public GameObject checkersKing;
+
+    public GameObject reversiPawn;
+
 
     [HideInInspector]
     public Field[,] board;
@@ -74,13 +87,13 @@ public class Board : MonoBehaviour {
                             case FieldType.WHITE:
                                 fieldPrefab = whiteField;
                                 break;
-                            case FieldType.CASTLE:
+                            case FieldType.CASTL:
                                 fieldPrefab = castleField;
                                 break;
-                            case FieldType.ESCAPE:
+                            case FieldType.ESCAP:
                                 fieldPrefab = escapeField;
                                 break;
-                            case FieldType.NEUTRAL:
+                            case FieldType.NEUTR:
                                 fieldPrefab = neutralField;
                                 break;
                         }
@@ -112,27 +125,43 @@ public class Board : MonoBehaviour {
                 GameObject pieceObject = null;
 
                 switch(pieceLayout[i, j]) {
-                    case PieceType.ROOK:
-                        pieceObject = Instantiate(rook);
+                    case PieceType.CH_PAWN:
+                        pieceObject = Instantiate(chessPawn);
                         break;
-                    case PieceType.KING:
-                        pieceObject = Instantiate(king);
+                    case PieceType.CH_KING:
+                        pieceObject = Instantiate(chessKing);
                         break;
-                    case PieceType.BISHOP:
-                        pieceObject = Instantiate(bishop);
+                    case PieceType.CH_KNIG:
+                        pieceObject = Instantiate(chessKnight);
                         break;
-                    case PieceType.KNIGHT:
-                        pieceObject = Instantiate(knight);
+                    case PieceType.CH_BISH:
+                        pieceObject = Instantiate(chessBishop);
                         break;
-                    case PieceType.PAWN:
-                        pieceObject = Instantiate(pawn);
+                    case PieceType.CH_ROOK:
+                        pieceObject = Instantiate(chessRook);
                         break;
-                    case PieceType.QUEEN:
-                        pieceObject = Instantiate(queen);
+                    case PieceType.CH_QUEE:
+                        pieceObject = Instantiate(chessQueen);
                         break;
-                    case PieceType.C_PAWN:
-                        pieceObject = Instantiate(c_pawn);
+
+                    case PieceType.VK_KING:
+                        pieceObject = Instantiate(vikingKing);
                         break;
+                    case PieceType.VK_ROOK:
+                        pieceObject = Instantiate(vikingRook);
+                        break;
+
+                    case PieceType.CK_PAWN:
+                        pieceObject = Instantiate(checkersPawn);
+                        break;
+                    case PieceType.CK_KING:
+                        pieceObject = Instantiate(checkersKing);
+                        break;
+
+                    case PieceType.RV_PAWN:
+                        pieceObject = Instantiate(reversiPawn);
+                        break;
+
                     default:
                         continue;
                 }
@@ -155,12 +184,13 @@ public class Board : MonoBehaviour {
         }
     }
 
-    public bool IsOcupied (int x, int y) {
-        return board[y, x].FindPiece();
+    public bool IsOcupied (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
+        return board[y, x].FindPiece() ||
+               (board[y, x].fieldType == FieldType.CASTL && pieceType != PieceType.VK_KING);
     }
 
-    public bool IsOcupied (Position position) {
-        return IsOcupied(position.x, position.y);
+    public bool IsOcupied (Position position, PieceType pieceType = PieceType.AL_NONE) {
+        return IsOcupied(position.x, position.y, pieceType);
     }
 
     public Field GetField (int x, int y) {
@@ -180,10 +210,7 @@ public class Board : MonoBehaviour {
     }
 
     public bool ValidPosition (int x, int y) {
-        if (x >= 0 && x < width && y >= 0 && y < height)
-            return true;
-        else
-            return false;
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     public bool ValidPosition (Position position) {
@@ -191,7 +218,7 @@ public class Board : MonoBehaviour {
     }
 
     public bool CanJumpOver (int x, int y) {
-        return false;
+        return !board[y, x].FindPiece();
     }
 
     public bool CanJumpOver (Position position) {
