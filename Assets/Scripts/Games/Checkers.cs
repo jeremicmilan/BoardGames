@@ -46,6 +46,13 @@ public class Checkers : Game {
     }
 
     public override bool Attack (Move move, bool destroy = true) {
-        throw new NotImplementedException();
+        if (Math.Abs(move.end.x - move.start.x) == 2) {
+            if (destroy)
+                GameObject.Destroy(board.GetField(move.start.x + (move.end.x - move.start.x) / 2, move.start.y + (move.end.y - move.start.y) / 2).FindPiece().gameObject);
+            return true;
+        }
+       
+
+        return false;
     }
 }
