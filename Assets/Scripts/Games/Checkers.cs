@@ -55,4 +55,16 @@ public class Checkers : Game {
 
         return false;
     }
+
+    public override bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
+        throw new NotImplementedException();
+    }
+
+    public override bool CheckForEnd (ref bool whiteWon) {
+        throw new NotImplementedException();
+    }
+
+    public override bool CheckForPieceEvolve () {
+        throw new NotImplementedException();
+    }
 }

@@ -11,6 +11,7 @@ public abstract class Game {
     public Board board;
 
     public bool isWhitesTurn;
+    public bool gameEnded = false;
 
     public Game (GameName gameName, string name, string description, GameObject picture) {
         this.gameName = gameName;
@@ -23,4 +24,13 @@ public abstract class Game {
     public abstract void StartTwoPlayer ();
 
     public abstract bool Attack (Move move, bool destroy = true);
+
+    public abstract bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE);
+
+    public bool CanMoveTo (Position position, PieceType pieceType = PieceType.AL_NONE) {
+        return CanMoveTo(position.x, position.y, pieceType);
+    }
+
+    public abstract bool CheckForEnd (ref bool whiteWon);
+    public abstract bool CheckForPieceEvolve ();
 }

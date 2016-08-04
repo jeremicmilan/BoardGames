@@ -44,4 +44,16 @@ public class Reversi : Game {
     public override bool Attack (Move move, bool destroy = true) {
         throw new NotImplementedException();
     }
+
+    public override bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
+        throw new NotImplementedException();
+    }
+
+    public override bool CheckForEnd (ref bool whiteWon) {
+        throw new NotImplementedException();
+    }
+
+    public override bool CheckForPieceEvolve () {
+        throw new NotImplementedException();
+    }
 }
