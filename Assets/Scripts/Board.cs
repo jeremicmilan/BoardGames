@@ -37,6 +37,8 @@ public class Board : MonoBehaviour {
 
     public GameObject reversiPawn;
 
+    [HideInInspector]
+    public GameObject graveyard;
 
     [HideInInspector]
     public Field[,] board;
@@ -52,7 +54,10 @@ public class Board : MonoBehaviour {
     [HideInInspector]
     public Position previousPositionClicked;
     [HideInInspector]
-    public List<Move> previousMoves;
+    public List<Move> previousPossibleMoves;
+
+    [HideInInspector]
+    public Stack<Move> moveHistory = new Stack<Move>();
 
     [HideInInspector]
     public Game game;
@@ -184,15 +189,6 @@ public class Board : MonoBehaviour {
         }
     }
 
-    public bool IsOcupied (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
-        return board[y, x].FindPiece() ||
-               (board[y, x].fieldType == FieldType.CASTL && pieceType != PieceType.VK_KING);
-    }
-
-    public bool IsOcupied (Position position, PieceType pieceType = PieceType.AL_NONE) {
-        return IsOcupied(position.x, position.y, pieceType);
-    }
-
     public Field GetField (int x, int y) {
         return board[y, x];
     }
@@ -202,7 +198,8 @@ public class Board : MonoBehaviour {
     }
 
     public Piece GetPiece (int x, int y) {
-        return board[y, x].FindPiece();
+        return 
+            board[y, x].FindPiece();
     }
 
     public Piece GetPiece (Position position) {
@@ -263,7 +260,7 @@ public class Board : MonoBehaviour {
     }
 
     public bool CanMakeMove (Move move) {
-        return previousMoves != null && previousMoves.Contains(move);
+        return previousPossibleMoves != null && previousPossibleMoves.Contains(move);
     }
 
     public void MakeMove (Move move) {
@@ -271,7 +268,6 @@ public class Board : MonoBehaviour {
 
         piece.transform.parent = move.end.field.transform;
         piece.position = move.end;
-
         piece.transform.localPosition = new Vector3(0, 0, -1);
 
         game.Attack(move);
@@ -280,10 +276,54 @@ public class Board : MonoBehaviour {
 
         ClearMarkers();
 
+        moveHistory.Push(move);
+
         Text OnTheMove =  GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text> ();
         if (game.isWhitesTurn)
             OnTheMove.text = "White is on the move";
         else
             OnTheMove.text = "Black is on the move";
+    }
+
+    public Piece FindPiece (PieceType pieceType) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Piece piece = GetField(i, j).FindPiece();
+                if (piece && piece.pieceType == pieceType) {
+                    return piece;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void UndoMove (Move move) {
+        Piece piece = move.end.field.FindPiece();
+
+        piece.transform.parent = move.start.field.transform;
+        piece.position = move.start;
+        piece.transform.localPosition = new Vector3(0, 0, -1);
+
+        game.isWhitesTurn = !game.isWhitesTurn;
+
+        ClearMarkers();
+
+        foreach (Piece p in move.eatenPieces) {
+            p.transform.parent = p.position.field.transform;
+            p.transform.localPosition = new Vector3(0, 0, -1);
+        }
+    }
+
+    public void Undo () {
+        if (moveHistory.Count > 0) {
+            Move move = moveHistory.Pop();
+
+            UndoMove(move);
+        }
+    }
+
+    public void SendToGraveyard (Piece piece) {
+        piece.transform.parent = graveyard.transform;
+        piece.transform.localPosition = new Vector3(0, 0, -1);
     }
 }
