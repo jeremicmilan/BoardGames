@@ -38,7 +38,7 @@ public class Position {
         int x = position1.x + position2.x;
         int y = position1.y + position2.y;
 
-        return new Position(x, y, board.ValidPosition(x, y) ? board.GetField(position1.x + position2.x, position1.y + position2.y) : null);
+        return new Position(x, y, board.ValidPosition(x, y) ? board.GetField(x, y) : null);
     }
 
     public static Position operator * (int k, Position position) {
@@ -82,6 +82,8 @@ public class Position {
 public class Move {
     public Position start;
     public Position end;
+
+    public List<Piece> eatenPieces = new List<Piece>();
 
     public Move (Position start, Position end) {
         this.start = start;
@@ -154,7 +156,7 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
         for (int i = 1; board.ValidPosition(pos); i++, pos = position + i * direction) {
-            if (!board.IsOcupied(pos)) {
+            if (game.CanMoveTo(pos, pieceType)) {
                 possibleMoves.Add(new Move(position, pos));
             } else if (!board.CanJumpOver(pos)) {
                 break;
@@ -180,7 +182,7 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
         
-        if (board.ValidPosition(pos) && !board.IsOcupied(pos)) 
+        if (board.ValidPosition(pos) && game.CanMoveTo(pos)) 
             possibleMoves.Add(new Move(position, pos));
                
         return possibleMoves;
@@ -204,7 +206,7 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
         for (int i = 1; board.ValidPosition(pos); i++, pos = position + i * direction) {
-            if (!board.IsOcupied(pos)) {
+            if (game.CanMoveTo(pos)) {
                 possibleMoves.Add(new Move(position, pos));
             } else if (!board.CanJumpOver(pos)) {
                 break;
@@ -230,7 +232,7 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
 
-        if (board.ValidPosition(pos) && !board.IsOcupied(pos))
+        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
             possibleMoves.Add(new Move(position, pos));
 
         return possibleMoves;
@@ -257,7 +259,7 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
 
-        if (board.ValidPosition(pos) && !board.IsOcupied(pos))
+        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
             possibleMoves.Add(new Move(position, pos));
 
         return possibleMoves;
@@ -284,7 +286,7 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
 
-        if (board.ValidPosition(pos) && !board.IsOcupied(pos))
+        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
             possibleMoves.Add(new Move(position, pos));
 
         return possibleMoves;
@@ -311,9 +313,9 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
         
-        if (board.ValidPosition(pos) && !board.IsOcupied(pos))
+        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
             if (Math.Abs(direction.x) == 2) {
-                if (board.IsOcupied(position + new Position(direction.x / 2, direction.y / 2, null)))
+                if (game.CanMoveTo(position + new Position(direction.x / 2, direction.y / 2, null)))
                     if (board.GetField(position + new Position(direction.x / 2, direction.y / 2, null)).FindPiece().isWhite != isWhite)
                         possibleMoves.Add(new Move(position, pos));
             } else
@@ -345,9 +347,9 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
 
-        if (board.ValidPosition(pos) && !board.IsOcupied(pos))
+        if (board.ValidPosition(pos) && !game.CanMoveTo(pos))
             if (Math.Abs(direction.x) == 2) {
-                if (board.IsOcupied(position + new Position(direction.x / 2, direction.y / 2, null)))
+                if (game.CanMoveTo(position + new Position(direction.x / 2, direction.y / 2, null)))
                     if (board.GetField(position + new Position(direction.x / 2, direction.y / 2, null)).FindPiece().isWhite != isWhite)
                         possibleMoves.Add(new Move(position, pos));
             } else
@@ -406,7 +408,7 @@ public class Piece : MonoBehaviour {
 
     public void OnClick () {
         List<Move> possibleMoves = PossibleMoves();
-        board.previousMoves = possibleMoves;
+        board.previousPossibleMoves = possibleMoves;
         board.MarkFields(position, possibleMoves);
     }
 }
