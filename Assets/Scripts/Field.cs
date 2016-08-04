@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public enum FieldType { BLACK, WHITE, CASTL, ESCAP, NEUTR }
 
@@ -24,11 +25,24 @@ public class Field : MonoBehaviour {
     }
 
 	void OnMouseDown () {
+        if (board.game.gameEnded) {
+            return;
+        }
+
         Piece piece = FindPiece();
         Move move = new Move(board.previousPositionClicked, position);
 
         if (board.CanMakeMove(move)) {
             board.MakeMove(move);
+
+            bool whiteWon = false;
+            if (board.game.CheckForEnd(ref whiteWon)) {
+                Text status = GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text>();
+
+                status.text = (whiteWon ? "White" : "Black") + " won!";
+                board.game.gameEnded = true;
+            }
+
         } else if (piece) {
             piece.OnClick();
         } else {
