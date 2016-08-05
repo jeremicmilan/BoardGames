@@ -173,7 +173,7 @@ public class VikingChess : Game {
         return false;
     }
 
-    public override bool CheckForPieceEvolve () {
+    public override bool CheckForPieceEvolve (Move move) {
         return false;
     }
 }

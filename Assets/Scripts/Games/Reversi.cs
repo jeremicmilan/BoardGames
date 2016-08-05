@@ -11,6 +11,7 @@ public class Reversi : Game {
 
         board = boardObject.GetComponent<Board>();
         board.game = this;
+        board.graveyard = GameObject.Find("Graveyard");
 
         board.BuildBoard(8, 8, BoardType.UNCHECKERED);
 
@@ -53,7 +54,7 @@ public class Reversi : Game {
         throw new NotImplementedException();
     }
 
-    public override bool CheckForPieceEvolve () {
+    public override bool CheckForPieceEvolve (Move move) {
         throw new NotImplementedException();
     }
 }
