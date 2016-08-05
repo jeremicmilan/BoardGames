@@ -48,7 +48,6 @@
      <Compile Include="Assets\Scripts\Board.cs" />
      <Compile Include="Assets\Scripts\Field.cs" />
      <Compile Include="Assets\Scripts\GameIcon.cs" />
-     <Compile Include="Assets\Scripts\GameMenu.cs" />
      <Compile Include="Assets\Scripts\Games\Checkers.cs" />
      <Compile Include="Assets\Scripts\Games\Game.cs" />
      <Compile Include="Assets\Scripts\Games\Reversi.cs" />
