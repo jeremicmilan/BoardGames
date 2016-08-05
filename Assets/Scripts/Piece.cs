@@ -85,9 +85,17 @@ public class Move {
 
     public List<Piece> eatenPieces = new List<Piece>();
 
+    public bool isAttack = false;
+
     public Move (Position start, Position end) {
         this.start = start;
         this.end = end;
+    }
+
+    public Move(Position start, Position end, bool isAttack) {
+        this.start = start;
+        this.end = end;
+        this.isAttack = isAttack;
     }
 
     public override string ToString () {
@@ -208,8 +216,6 @@ public class Piece : MonoBehaviour {
         for (int i = 1; board.ValidPosition(pos); i++, pos = position + i * direction) {
             if (game.CanMoveTo(pos)) {
                 possibleMoves.Add(new Move(position, pos));
-            } else if (!board.CanJumpOver(pos)) {
-                break;
             }
         }
 
@@ -270,7 +276,7 @@ public class Piece : MonoBehaviour {
 
         if (isWhite) {
             possibleMoves.AddRange(GetPawnChessMoves(new Position(0, -1, null)));
-            if(position.y == 6 )
+            if(position.y == board.height - 2 )
                 possibleMoves.AddRange(GetPawnChessMoves(new Position(0, -2, null)));
         } else {
             possibleMoves.AddRange(GetPawnChessMoves(new Position(0, 1, null)));
@@ -315,9 +321,9 @@ public class Piece : MonoBehaviour {
         
         if (board.ValidPosition(pos) && game.CanMoveTo(pos))
             if (Math.Abs(direction.x) == 2) {
-                if (game.CanMoveTo(position + new Position(direction.x / 2, direction.y / 2, null)))
+                if (!game.CanMoveTo(position + new Position(direction.x / 2, direction.y / 2, null)))
                     if (board.GetField(position + new Position(direction.x / 2, direction.y / 2, null)).FindPiece().isWhite != isWhite)
-                        possibleMoves.Add(new Move(position, pos));
+                        possibleMoves.Add(new Move(position, pos, true));
             } else
                 possibleMoves.Add(new Move(position, pos));
 
@@ -326,19 +332,23 @@ public class Piece : MonoBehaviour {
 
     private List<Move> GetPawnCheckersMoves() {
         List<Move> possibleMoves = new List<Move>();
-        
+
         if (isWhite) {
-            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(1, -1, null)));
-            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-1, -1, null)));
             possibleMoves.AddRange(GetPawnCheckersMoves(new Position(2, -2, null)));
             possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-2, -2, null)));
+            if (possibleMoves.Count == 0) {
+                possibleMoves.AddRange(GetPawnCheckersMoves(new Position(1, -1, null)));
+                possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-1, -1, null)));
+            }
         } else {
-            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(1, 1, null)));
-            possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-1, 1, null)));
             possibleMoves.AddRange(GetPawnCheckersMoves(new Position(2, 2, null)));
             possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-2, 2, null)));
+            if (possibleMoves.Count == 0) {
+                possibleMoves.AddRange(GetPawnCheckersMoves(new Position(1, 1, null)));
+                possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-1, 1, null)));
+            }
         }
-        
+
         return possibleMoves;
     }
 
@@ -347,11 +357,11 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
 
-        if (board.ValidPosition(pos) && !game.CanMoveTo(pos))
+        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
             if (Math.Abs(direction.x) == 2) {
-                if (game.CanMoveTo(position + new Position(direction.x / 2, direction.y / 2, null)))
+                if (!game.CanMoveTo(position + new Position(direction.x / 2, direction.y / 2, null)))
                     if (board.GetField(position + new Position(direction.x / 2, direction.y / 2, null)).FindPiece().isWhite != isWhite)
-                        possibleMoves.Add(new Move(position, pos));
+                        possibleMoves.Add(new Move(position, pos, true));
             } else
                 possibleMoves.Add(new Move(position, pos));
 
@@ -361,19 +371,22 @@ public class Piece : MonoBehaviour {
     private List<Move> GetKingCheckersMoves() {
         List<Move> possibleMoves = new List<Move>();
 
-        possibleMoves.AddRange(GetKingCheckersMoves(new Position(1, -1, null)));
-        possibleMoves.AddRange(GetKingCheckersMoves(new Position(-1, -1, null)));
-        possibleMoves.AddRange(GetPawnCheckersMoves(new Position(2, -2, null)));
-        possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-2, -2, null)));
-        possibleMoves.AddRange(GetKingCheckersMoves(new Position(1, 1, null)));
-        possibleMoves.AddRange(GetKingCheckersMoves(new Position(-1, 1, null)));
-        possibleMoves.AddRange(GetPawnCheckersMoves(new Position(2, 2, null)));
-        possibleMoves.AddRange(GetPawnCheckersMoves(new Position(-2, 2, null)));
+        possibleMoves.AddRange(GetKingCheckersMoves(new Position(2, -2, null)));
+        possibleMoves.AddRange(GetKingCheckersMoves(new Position(-2, -2, null)));
+        possibleMoves.AddRange(GetKingCheckersMoves(new Position(2, 2, null)));
+        possibleMoves.AddRange(GetKingCheckersMoves(new Position(-2, 2, null)));
+        if (possibleMoves.Count == 0) {
+            possibleMoves.AddRange(GetKingCheckersMoves(new Position(1, -1, null)));
+            possibleMoves.AddRange(GetKingCheckersMoves(new Position(-1, -1, null)));
+            possibleMoves.AddRange(GetKingCheckersMoves(new Position(1, 1, null)));
+            possibleMoves.AddRange(GetKingCheckersMoves(new Position(-1, 1, null)));
+        }
 
         return possibleMoves;
     }
 
-    private List<Move> PossibleMoves () {
+    //*** CHECKERS
+    public List<Move> PossibleMoves () {
         List<Move> possibleMoves = new List<Move>();
 
         if (game.isWhitesTurn == isWhite) {
