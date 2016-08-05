@@ -246,10 +246,16 @@ public class Board : MonoBehaviour {
 
         MakeMarker(start, markerSelected);
 
-        foreach (Move move in possibleMoves) {
+        //*** CHECKERS
+        bool CheckersAttack = false;
+        if (game.gameName == GameName.CHECKERS && ((Checkers)game).CheckForAttack())
+            CheckersAttack = true;
+        //***
+    
+         foreach (Move move in possibleMoves) {
             if (game.Attack(move, false)) {
                 MakeMarker(move.end, markerAttack);
-            } else {
+            } else if(!CheckersAttack){
                 MakeMarker(move.end, markerPossible);
             }
         }
@@ -270,7 +276,14 @@ public class Board : MonoBehaviour {
         piece.position = move.end;
         piece.transform.localPosition = new Vector3(0, 0, -1);
 
-        game.Attack(move);
+        bool attacked = game.Attack(move);
+
+        game.CheckForPieceEvolve(move);
+
+        //*** CHECKERS
+        if (game.gameName == GameName.CHECKERS  && ((Checkers)game).CheckForAttack() && attacked)
+            game.isWhitesTurn = !game.isWhitesTurn;
+        //***
 
         game.isWhitesTurn = !game.isWhitesTurn;
 
@@ -295,6 +308,20 @@ public class Board : MonoBehaviour {
             }
         }
         return null;
+    }
+
+    public List<Piece> FindAllPieces(PieceType pieceType) {       
+        List<Piece> pieces = new List<Piece> ();
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Piece piece = GetField(i, j).FindPiece();
+                if (piece && piece.pieceType == pieceType) {
+                    pieces.Add(piece);
+                }
+            }
+        }       
+        return pieces;       
     }
 
     private void UndoMove (Move move) {
