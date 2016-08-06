@@ -30,7 +30,7 @@ public class Checkers : Game {
         board.SetPieces(new PieceType[,] { { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CK_PAWN, PieceType.AL_NONE, PieceType.CK_PAWN },
                                            { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CK_PAWN, PieceType.AL_NONE },
                                            { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CK_PAWN, PieceType.AL_NONE, PieceType.CK_PAWN },
-                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CK_KING, PieceType.AL_NONE, PieceType.CK_PAWN, PieceType.AL_NONE },
+                                           { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CK_PAWN, PieceType.AL_NONE },
                                            { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CK_PAWN, PieceType.AL_NONE, PieceType.CK_PAWN },
                                            { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CK_PAWN, PieceType.AL_NONE },
                                            { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.CK_PAWN, PieceType.AL_NONE, PieceType.CK_PAWN },
@@ -116,36 +116,15 @@ public class Checkers : Game {
 
     }
 
-    public void evolve(Move move, Piece piece){
-        move.eatenPieces.Add(piece);
-        board.SendToGraveyard(piece);
-        
-        GameObject newPiece = null;
-        newPiece = UnityEngine.Object.Instantiate<GameObject>(board.checkersKing);
-        Piece king = newPiece.GetComponent<Piece>();
-        king.transform.parent = move.end.field.transform;
-        king.transform.localPosition = new Vector3(0, 0, -1);
-        king.transform.localScale = move.end.field.transform.localScale;
-
-        if (!isWhitesTurn) {
-            newPiece.transform.GetComponent<Renderer>().material.color = Color.gray;
-        }
-
-        king.board = board;
-        king.position = move.end;
-        king.game = this;
-        king.isWhite = isWhitesTurn;
-        
-    }
-
     public override bool CheckForPieceEvolve (Move move) {
         List<Piece> pieces = board.FindAllPieces(PieceType.CK_PAWN);
         foreach (Piece piece in pieces) {
             if (piece.isWhite == isWhitesTurn) {
-                if (isWhitesTurn && piece.position.y == 0) {
-                    evolve(move, piece);
-                } else if (!isWhitesTurn && piece.position.y == board.height - 1) {
-                    evolve(move, piece);
+                if ((isWhitesTurn && piece.position.y == 0) || (!isWhitesTurn && piece.position.y == board.height - 1)) {
+                    move.eatenPieces.Add(piece);
+                    board.SendToGraveyard(piece);
+                    board.setPiece(PieceType.CK_KING, move.end);
+                    return true;
                 }
             }
         }
