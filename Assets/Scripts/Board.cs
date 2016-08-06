@@ -47,6 +47,7 @@ public class Board : MonoBehaviour {
     public GameObject markerPossible;
     public GameObject markerAttack;
     public GameObject markerPreviousMove;
+    public GameObject markerInvisible;
 
     [HideInInspector]
     public List<GameObject> markers = new List<GameObject>();
@@ -70,8 +71,8 @@ public class Board : MonoBehaviour {
         Vector3 size = blackField.GetComponent<Renderer>().bounds.size;
         float sizeX = size.x;
 
-        float scaleFactor = 1.5f * Mathf.Min(((float)Screen.width / width) / 300f, ((float)Screen.height / height) / 300f);
-        Vector3 initialPosition = -sizeX * new Vector3(width / 2f, height / 2f, 0) + size / 2 + new Vector3(5, 0, 0);
+        float scaleFactor = 1.3f * Mathf.Min(((float)Screen.width / width) / 300f, ((float)Screen.height / height) / 300f);
+        Vector3 initialPosition = -sizeX * new Vector3(width / 2f, height / 2f, 0) + size / 2 + new Vector3(7, 0, 0); 
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -189,6 +190,59 @@ public class Board : MonoBehaviour {
         }
     }
 
+    public void setPiece(PieceType pieceType, Position position)
+    {
+        GameObject pieceObject = null;
+        switch (pieceType) {
+            case PieceType.CH_PAWN:
+                pieceObject = Instantiate(chessPawn);
+                break;
+            case PieceType.CH_KING:
+                pieceObject = Instantiate(chessKing);
+                break;
+            case PieceType.CH_KNIG:
+                pieceObject = Instantiate(chessKnight);
+                break;
+            case PieceType.CH_BISH:
+                pieceObject = Instantiate(chessBishop);
+                break;
+            case PieceType.CH_ROOK:
+                pieceObject = Instantiate(chessRook);
+                break;
+            case PieceType.CH_QUEE:
+                pieceObject = Instantiate(chessQueen);
+                break;
+            case PieceType.VK_KING:
+                pieceObject = Instantiate(vikingKing);
+                break;
+            case PieceType.VK_ROOK:
+                pieceObject = Instantiate(vikingRook);
+                break;
+            case PieceType.CK_PAWN:
+                pieceObject = Instantiate(checkersPawn);
+                break;
+            case PieceType.CK_KING:
+                pieceObject = Instantiate(checkersKing);
+                break;
+            case PieceType.RV_PAWN:
+                pieceObject = Instantiate(reversiPawn);
+                break;
+        }
+        Piece piece = pieceObject.GetComponent<Piece>();
+        piece.transform.parent = position.field.transform;
+        piece.transform.localPosition = new Vector3(0, 0, -1);
+        piece.transform.localScale = position.field.transform.localScale;
+
+        if (!game.isWhitesTurn) {
+            pieceObject.transform.GetComponent<Renderer>().material.color = Color.gray;
+        }
+
+        piece.board = this;
+        piece.position = position;
+        piece.game = game;
+        piece.isWhite = game.isWhitesTurn;
+    }
+
     public Field GetField (int x, int y) {
         return board[y, x];
     }
@@ -250,15 +304,36 @@ public class Board : MonoBehaviour {
         bool CheckersAttack = false;
         if (game.gameName == GameName.CHECKERS && ((Checkers)game).CheckForAttack())
             CheckersAttack = true;
+
+        List<Move> toRemove = new List<Move>();
         //***
     
-         foreach (Move move in possibleMoves) {
+        foreach (Move move in possibleMoves) {
             if (game.Attack(move, false)) {
                 MakeMarker(move.end, markerAttack);
-            } else if(!CheckersAttack){
+        //*** CHECKERS
+            } else if (!CheckersAttack) {
                 MakeMarker(move.end, markerPossible);
+            } else {
+               toRemove.Add(move);            
             }
         }
+
+        possibleMoves.RemoveAll(x => toRemove.Contains(x));
+        //***
+
+        //*** REVERSI
+        List<Piece> pieces = FindAllPieces(PieceType.RV_PAWN);
+        foreach (Piece piece in pieces) {
+            if (piece.isWhite == game.isWhitesTurn) {
+                List<Move> moves = piece.PossibleMoves();
+                foreach (Move move in moves) {
+                    MakeMarker(move.end, markerAttack);
+                }
+            }
+
+        }
+        //***
     }
 
     public void MarkSelected (Position start) {
@@ -272,9 +347,16 @@ public class Board : MonoBehaviour {
     public void MakeMove (Move move) {
         Piece piece = move.start.field.FindPiece();
 
-        piece.transform.parent = move.end.field.transform;
-        piece.position = move.end;
-        piece.transform.localPosition = new Vector3(0, 0, -1);
+        //*** REVERSI
+        if (game.gameName == GameName.REVERSI) {
+            ((Reversi)game).ChangeColor(((Reversi)game).returnPossibleMoves(), move.end);
+            setPiece(PieceType.RV_PAWN, move.end);
+        } else {
+            piece.transform.parent = move.end.field.transform;
+            piece.position = move.end;
+            piece.transform.localPosition = new Vector3(0, 0, -1);
+        }
+        //***
 
         bool attacked = game.Attack(move);
 
