@@ -162,5 +162,7 @@ public class Checkers : Game {
         return false;
     }
 
-    
+    public override Move getAIMove () {
+        throw new NotImplementedException();
+    }
 }

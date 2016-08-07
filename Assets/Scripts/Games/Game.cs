@@ -33,4 +33,6 @@ public abstract class Game {
 
     public abstract bool CheckForEnd (ref bool whiteWon);
     public abstract bool CheckForPieceEvolve (Move move);
+
+    public abstract Move getAIMove ();
 }
