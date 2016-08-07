@@ -146,6 +146,7 @@ public class Piece : MonoBehaviour {
     public bool kingChessMovement;
     public bool pawnCheckersMovement;
     public bool kingCheckersMovement;
+    public bool pawnReversiMovement;
 
     public PieceType pieceType;
     public bool isWhite;
@@ -385,7 +386,49 @@ public class Piece : MonoBehaviour {
         return possibleMoves;
     }
 
-    //*** CHECKERS
+    private List<Move> GetPawnReversiMoves(Position direction, Position pos) {
+        List<Move> possibleMoves = new List<Move>();
+
+        Position currentPosition = pos + direction;
+
+        if(!board.ValidPosition(currentPosition))
+            return possibleMoves;
+
+        Piece piece = board.GetField(currentPosition).FindPiece();
+
+        if (piece && piece.isWhite != game.isWhitesTurn) {
+            ((Reversi)game).isAttack = true;
+            possibleMoves.AddRange(GetPawnReversiMoves(direction, currentPosition));
+        } else if (((Reversi)game).isAttack && game.CanMoveTo(currentPosition)) {
+            possibleMoves.Add(new Move(position, currentPosition, true));
+        }
+
+        return possibleMoves;
+    }
+
+    public List<Move> GetPawnReversiMoves() {
+        List<Move> possibleMoves = new List<Move>();
+
+        ((Reversi)game).isAttack = false;
+        possibleMoves.AddRange(GetPawnReversiMoves(new Position(1, 0, null), position));
+        ((Reversi)game).isAttack = false;
+        possibleMoves.AddRange(GetPawnReversiMoves(new Position(1, 1, null), position));
+        ((Reversi)game).isAttack = false;
+        possibleMoves.AddRange(GetPawnReversiMoves(new Position(1, -1, null), position));
+        ((Reversi)game).isAttack = false;
+        possibleMoves.AddRange(GetPawnReversiMoves(new Position(0, 1, null), position));
+        ((Reversi)game).isAttack = false;
+        possibleMoves.AddRange(GetPawnReversiMoves(new Position(0, -1, null), position));
+        ((Reversi)game).isAttack = false;
+        possibleMoves.AddRange(GetPawnReversiMoves(new Position(-1, 0, null), position));
+        ((Reversi)game).isAttack = false;
+        possibleMoves.AddRange(GetPawnReversiMoves(new Position(-1, 1, null), position));
+        ((Reversi)game).isAttack = false;
+        possibleMoves.AddRange(GetPawnReversiMoves(new Position(-1, -1, null), position));
+
+        return possibleMoves;
+    }
+
     public List<Move> PossibleMoves () {
         List<Move> possibleMoves = new List<Move>();
 
@@ -414,6 +457,9 @@ public class Piece : MonoBehaviour {
             if (kingCheckersMovement) {
                 possibleMoves.AddRange(GetKingCheckersMoves());
             }
+            if (pawnReversiMovement) {
+                possibleMoves.AddRange(((Reversi)game).returnPossibleMoves());
+            }
         }
 
         return possibleMoves;
@@ -422,6 +468,6 @@ public class Piece : MonoBehaviour {
     public void OnClick () {
         List<Move> possibleMoves = PossibleMoves();
         board.previousPossibleMoves = possibleMoves;
-        board.MarkFields(position, possibleMoves);
+        board.game.MarkFields(position, possibleMoves);
     }
 }
