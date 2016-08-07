@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public enum FieldType { BLACK, WHITE, CASTL, ESCAP, NEUTR }
 
@@ -33,13 +34,17 @@ public class Field : MonoBehaviour {
         Move move = new Move(board.previousPositionClicked, position);
 
         if (board.CanMakeMove(move)) {
-            board.MakeMove(move);
+            board.game.MakeMove(move);
 
-            bool whiteWon = false;
+            bool? whiteWon = false;
             if (board.game.CheckForEnd(ref whiteWon)) {
                 Text status = GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text>();
 
-                status.text = (whiteWon ? "White" : "Black") + " won!";
+                if (whiteWon.HasValue)
+                    status.text = (whiteWon.Value ? "White" : "Black") + " won!";
+                else
+                    status.text = "Draw!";
+
                 board.game.gameEnded = true;
             }
 
