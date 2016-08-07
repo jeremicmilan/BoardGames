@@ -38,18 +38,12 @@ public class Field : MonoBehaviour {
 
             bool? whiteWon = false;
             if (board.game.CheckForEnd(ref whiteWon)) {
-<<<<<<< HEAD
                 Text status = GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text>();
 
                 if (whiteWon.HasValue)
                     status.text = (whiteWon.Value ? "White" : "Black") + " won!";
                 else
                     status.text = "Draw!";
-
-=======
-                board.UpdateStatusText((whiteWon ? "White" : "Black") + " won!");
->>>>>>> origin/master
-                board.game.gameEnded = true;
             }
             
 
