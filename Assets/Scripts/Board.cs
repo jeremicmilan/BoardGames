@@ -373,11 +373,21 @@ public class Board : MonoBehaviour {
 
         moveHistory.Push(move);
 
-        Text OnTheMove =  GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text> ();
+        UpdateStatusText();
+    }
+
+    public void UpdateStatusText (string text = null) {
+        Text status = GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text>();
+
+        if (text != null) {
+            status.text = text;
+            return;
+        }
+
         if (game.isWhitesTurn)
-            OnTheMove.text = "White is on the move";
+            status.text = "White is on the move";
         else
-            OnTheMove.text = "Black is on the move";
+            status.text = "Black is on the move";
     }
 
     public Piece FindPiece (PieceType pieceType) {
@@ -416,11 +426,14 @@ public class Board : MonoBehaviour {
         game.isWhitesTurn = !game.isWhitesTurn;
 
         ClearMarkers();
+        game.gameEnded = false;
 
         foreach (Piece p in move.eatenPieces) {
             p.transform.parent = p.position.field.transform;
             p.transform.localPosition = new Vector3(0, 0, -1);
         }
+
+        UpdateStatusText();
     }
 
     public void Undo () {
