@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine.UI;
 
 public class VikingChess : Game {
 
@@ -102,6 +103,42 @@ public class VikingChess : Game {
         return attacked;
     }
 
+    public override void MakeMove(Move move) {
+        Piece piece = move.start.field.FindPiece();
+
+        piece.transform.parent = move.end.field.transform;
+        piece.position = move.end;
+        piece.transform.localPosition = new Vector3(0, 0, -1);
+
+        Attack(move);
+
+        isWhitesTurn = !isWhitesTurn;
+
+        board.ClearMarkers();
+
+        board.moveHistory.Push(move);
+
+        Text OnTheMove = GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text>();
+        if (isWhitesTurn)
+            OnTheMove.text = "White is on the move";
+        else
+            OnTheMove.text = "Black is on the move";
+    }
+
+    public override void MarkFields(Position start, List<Move> possibleMoves) {
+        board.ClearMarkers();
+
+        board.MakeMarker(start, board.markerSelected);
+
+        foreach (Move move in possibleMoves) {
+            if (Attack(move, false)) {
+                board.MakeMarker(move.end, board.markerAttack);
+            } else {
+                board.MakeMarker(move.end, board.markerPossible);
+            } 
+        }
+    }
+
     public override bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
         Field field = board.GetField(x, y);
         FieldType fieldType = field.fieldType;
@@ -161,7 +198,7 @@ public class VikingChess : Game {
         return IsSurrounded(board.FindPiece(PieceType.VK_KING).position);
     }
 
-    public override bool CheckForEnd (ref bool whiteWon) {
+    public override bool CheckForEnd (ref bool? whiteWon) {
         if (DidKingEscape()) {
             whiteWon = true;
             return true;

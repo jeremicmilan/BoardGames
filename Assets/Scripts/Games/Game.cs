@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public abstract class Game {
 
@@ -24,13 +25,14 @@ public abstract class Game {
     public abstract void StartTwoPlayer ();
 
     public abstract bool Attack (Move move, bool destroy = true);
+    public abstract void MakeMove(Move move);
+    public abstract void MarkFields(Position start, List<Move> possibleMoves);
 
     public abstract bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE);
 
     public bool CanMoveTo (Position position, PieceType pieceType = PieceType.AL_NONE) {
         return CanMoveTo(position.x, position.y, pieceType);
     }
-
-    public abstract bool CheckForEnd (ref bool whiteWon);
+    public abstract bool CheckForEnd (ref bool? whiteWon);
     public abstract bool CheckForPieceEvolve (Move move);
 }
