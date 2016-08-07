@@ -65,8 +65,10 @@ public class VikingChess : Game {
         if (opponentPiece && opponentPiece.isWhite != isWhitesTurn && opponentPiece.pieceType != PieceType.VK_KING) {
             Position allyPosition = position + 2 * direction;
             if (board.ValidPosition(allyPosition)) {
-                Piece piece = board.GetPiece(allyPosition);
-                if (piece && piece.isWhite == isWhitesTurn) {
+                Piece allyPiece = board.GetPiece(allyPosition);
+                FieldType allyFieldType = allyPosition.field.fieldType;
+                if ((allyPiece && allyPiece.isWhite == isWhitesTurn) || allyFieldType == FieldType.ESCAP ||
+                                                                        allyFieldType == FieldType.CASTL) {
                     if (destroy) {
                         move.eatenPieces.Add(opponentPiece);
                         board.SendToGraveyard(opponentPiece);
@@ -169,19 +171,20 @@ public class VikingChess : Game {
     }
 
     private bool IsSurrounded (Position position) {
-        if (visitedPositions.Contains(position)) {
+        if (visitedPositions.Contains(position) || !board.ValidPosition(position)) {
             return true;
         }
         visitedPositions.Add(position);
 
-        Piece piece = board.GetField(position).FindPiece();
+        Field field = board.GetField(position);
+        Piece piece = field.FindPiece();
 
         if (!board.ValidPosition(position)) {
             return true;
         }
-
+        
         if (!piece) {
-            return false;
+            return field.fieldType == FieldType.CASTL || field.fieldType == FieldType.ESCAP;
         } else if (piece.isWhite == false) {
             return true;
         } else {
@@ -212,5 +215,9 @@ public class VikingChess : Game {
 
     public override bool CheckForPieceEvolve (Move move) {
         return false;
+    }
+
+    public override Move getAIMove () {
+        throw new NotImplementedException();
     }
 }

@@ -295,7 +295,50 @@ public class Board : MonoBehaviour {
         markers.Add(instantiatedMarker);
     }
 
+<<<<<<< HEAD
     
+=======
+    public void MarkFields (Position start, List<Move> possibleMoves) {
+        ClearMarkers();
+
+        MakeMarker(start, markerSelected);
+
+        //*** CHECKERS
+        bool CheckersAttack = false;
+        if (game.gameName == GameName.CHECKERS && ((Checkers)game).CheckForAttack())
+            CheckersAttack = true;
+
+        List<Move> toRemove = new List<Move>();
+        //***
+    
+        foreach (Move move in possibleMoves) {
+            if (game.Attack(move, false)) {
+                MakeMarker(move.end, markerAttack);
+        //*** CHECKERS
+            } else if (!CheckersAttack) {
+                MakeMarker(move.end, markerPossible);
+            } else {
+               toRemove.Add(move);            
+            }
+        }
+
+        possibleMoves.RemoveAll(x => toRemove.Contains(x));
+        //***
+
+        //*** REVERSI
+        List<Piece> pieces = FindAllPieces(PieceType.RV_PAWN);
+        foreach (Piece piece in pieces) {
+            if (piece.isWhite == game.isWhitesTurn) {
+                List<Move> moves = piece.PossibleMoves();
+                foreach (Move move in moves) {
+                    MakeMarker(move.end, markerAttack);
+                }
+            }
+
+        }
+        //***
+    }
+>>>>>>> origin/master
 
     public void MarkSelected (Position start) {
         game.MarkFields(start, new List<Move>());
@@ -305,6 +348,55 @@ public class Board : MonoBehaviour {
         return previousPossibleMoves != null && previousPossibleMoves.Contains(move);
     }
 
+<<<<<<< HEAD
+=======
+    public void MakeMove (Move move) {
+        Piece piece = move.start.field.FindPiece();
+
+        //*** REVERSI
+        if (game.gameName == GameName.REVERSI) {
+            ((Reversi)game).ChangeColor(((Reversi)game).returnPossibleMoves(), move.end);
+            setPiece(PieceType.RV_PAWN, move.end);
+        } else {
+            piece.transform.parent = move.end.field.transform;
+            piece.position = move.end;
+            piece.transform.localPosition = new Vector3(0, 0, -1);
+        }
+        //***
+
+        bool attacked = game.Attack(move);
+
+        game.CheckForPieceEvolve(move);
+
+        //*** CHECKERS
+        if (game.gameName == GameName.CHECKERS  && ((Checkers)game).CheckForAttack() && attacked)
+            game.isWhitesTurn = !game.isWhitesTurn;
+        //***
+
+        game.isWhitesTurn = !game.isWhitesTurn;
+
+        ClearMarkers();
+
+        moveHistory.Push(move);
+
+        UpdateStatusText();
+    }
+
+    public void UpdateStatusText (string text = null) {
+        Text status = GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text>();
+
+        if (text != null) {
+            status.text = text;
+            return;
+        }
+
+        if (game.isWhitesTurn)
+            status.text = "White is on the move";
+        else
+            status.text = "Black is on the move";
+    }
+
+>>>>>>> origin/master
     public Piece FindPiece (PieceType pieceType) {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -341,11 +433,14 @@ public class Board : MonoBehaviour {
         game.isWhitesTurn = !game.isWhitesTurn;
 
         ClearMarkers();
+        game.gameEnded = false;
 
         foreach (Piece p in move.eatenPieces) {
             p.transform.parent = p.position.field.transform;
             p.transform.localPosition = new Vector3(0, 0, -1);
         }
+
+        UpdateStatusText();
     }
 
     public void Undo () {

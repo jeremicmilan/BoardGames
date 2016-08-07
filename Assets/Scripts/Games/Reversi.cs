@@ -105,7 +105,11 @@ public class Reversi : Game {
 
         foreach(Piece piece in pieces)
             if(piece.isWhite == isWhitesTurn)
+<<<<<<< HEAD
                 possibleMoves.AddRange(piece.GetPawnReversiMoves());
+=======
+                possibleMoves.AddRange(piece.PossibleMoves());
+>>>>>>> origin/master
 
         return possibleMoves;        
     }
@@ -115,6 +119,7 @@ public class Reversi : Game {
         Piece piece = field.FindPiece();
 
         return !piece;
+<<<<<<< HEAD
     }
 
     public override void MakeMove(Move move) {
@@ -172,10 +177,22 @@ public class Reversi : Game {
             return true;             
         }
 
+=======
+    }
+
+    public override bool CheckForEnd (ref bool whiteWon) {
+>>>>>>> origin/master
         return false;
     }
 
     public override bool CheckForPieceEvolve (Move move) {
         return false;
+<<<<<<< HEAD
+=======
+    }
+
+    public override Move getAIMove () {
+        throw new NotImplementedException();
+>>>>>>> origin/master
     }
 }

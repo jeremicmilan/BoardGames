@@ -406,7 +406,11 @@ public class Piece : MonoBehaviour {
         return possibleMoves;
     }
 
+<<<<<<< HEAD
     public List<Move> GetPawnReversiMoves() {
+=======
+    private List<Move> GetPawnReversiMoves() {
+>>>>>>> origin/master
         List<Move> possibleMoves = new List<Move>();
 
         ((Reversi)game).isAttack = false;
@@ -429,6 +433,10 @@ public class Piece : MonoBehaviour {
         return possibleMoves;
     }
 
+<<<<<<< HEAD
+=======
+    //*** CHECKERS
+>>>>>>> origin/master
     public List<Move> PossibleMoves () {
         List<Move> possibleMoves = new List<Move>();
 
@@ -458,7 +466,11 @@ public class Piece : MonoBehaviour {
                 possibleMoves.AddRange(GetKingCheckersMoves());
             }
             if (pawnReversiMovement) {
+<<<<<<< HEAD
                 possibleMoves.AddRange(((Reversi)game).returnPossibleMoves());
+=======
+                possibleMoves.AddRange(GetPawnReversiMoves());
+>>>>>>> origin/master
             }
         }
 
