@@ -198,6 +198,13 @@ public class Reversi : Game {
             return true;             
         }
 
+<<<<<<< HEAD
+=======
+        return false;
+    }
+
+    public override bool CheckForPieceEvolve (Move move) {
+>>>>>>> origin/master
         return false;
     }
 
