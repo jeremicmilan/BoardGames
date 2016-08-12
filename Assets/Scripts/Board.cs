@@ -301,13 +301,6 @@ public class Board : MonoBehaviour {
         game.MarkFields(start, new List<Move>());
     }
 
-<<<<<<< HEAD
-=======
-    public bool CanMakeMove (Move move) {
-        return previousPossibleMoves != null && previousPossibleMoves.Contains(move);
-    }
-
->>>>>>> origin/master
     public void UpdateStatusText (string text = null) {
         Text status = GameObject.FindGameObjectWithTag("status").GetComponent<Text>();
 
