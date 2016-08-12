@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class Reversi : Game {
 
     public bool isAttack;
+    private List<Piece> toChange = new List<Piece> ();
 
     public Reversi ()
         : base(GameName.REVERSI, "Reversi", "", null) { }
@@ -42,61 +43,63 @@ public class Reversi : Game {
         SetBoardAndPieces();
         board.markerPossible = board.markerInvisible;
         board.markerSelected = board.markerInvisible;
+        MarkFields(new Position(-1, -1, null), returnPossibleMoves());
+        board.UpdateStatusText();
     }
 
     public override void StartTwoPlayer () {
         SetBoardAndPieces();
+        board.markerPossible = board.markerInvisible;
+        board.markerSelected = board.markerInvisible;
+        MarkFields(new Position(-1, -1, null), returnPossibleMoves());
+        board.UpdateStatusText();
     }
 
     public override bool Attack (Move move, bool destroy = true) {
         return true;
     }
 
-    public void ChangeColor(Position start, Position direction) {
+    public void ChangeColor(Position pos, Position direction) {
 
-        Position currentPosition = start + direction;
+        Position currentPosition = pos + direction;
 
-        if (CanMoveTo(currentPosition))
+        if (!board.ValidPosition(currentPosition) || CanMoveTo(currentPosition))
             return;
 
         Piece piece = board.GetField(currentPosition).FindPiece();
 
         if (piece.isWhite != isWhitesTurn) {
-            board.SendToGraveyard(piece);
-            board.setPiece(PieceType.RV_PAWN, currentPosition);
+            isAttack = true;
+            toChange.Add(piece);
             ChangeColor(currentPosition, direction);
+        }
+
+        if (piece.isWhite == isWhitesTurn && isAttack) {
+            foreach (Piece p in toChange) {
+                board.setPiece(PieceType.RV_PAWN, p.position);
+                board.SendToGraveyard(p);
+            }
         }
     }
 
 
-    public void ChangeColor(List<Move> moves, Position end) {
-        foreach (Move move in moves) {
-            if (move.end == end) {
-                if(move.end.x == move.start.x)
-                    if(move.end.y > move.start.y)
-                        ChangeColor(move.start, new Position(0, 1, null));
-                    else
-                        ChangeColor(move.start, new Position(0, -1, null));
-                else if (move.end.y == move.start.y)
-                    if (move.end.x > move.start.y)
-                        ChangeColor(move.start, new Position(1, 0, null));
-                    else
-                        ChangeColor(move.start, new Position(-1, 0, null));
-                else {
-                    if (move.end.x > move.start.x && move.end.y > move.start.y)
-                        ChangeColor(move.start, new Position(1, 1, null));
-                    if (move.end.x < move.start.x && move.end.y < move.start.y)
-                        ChangeColor(move.start, new Position(-1, -1, null));
-                    if (move.end.x > move.start.x && move.end.y < move.start.y)
-                        ChangeColor(move.start, new Position(1, -1, null));
-                    if (move.end.x < move.start.x && move.end.y > move.start.y)
-                        ChangeColor(move.start, new Position(-1, 1, null));
-
-                }
-                
-            }
-
-        }
+    public void ChangeColor(Position end) {
+        toChange.Clear(); isAttack = false;
+        ChangeColor(end, new Position(0, 1, null));
+        toChange.Clear(); isAttack = false;
+        ChangeColor(end, new Position(0, -1, null));
+        toChange.Clear(); isAttack = false;
+        ChangeColor(end, new Position(1, 0, null));
+        toChange.Clear(); isAttack = false;
+        ChangeColor(end, new Position(-1, 0, null));
+        toChange.Clear(); isAttack = false;
+        ChangeColor(end, new Position(1, 1, null));
+        toChange.Clear(); isAttack = false;
+        ChangeColor(end, new Position(-1, -1, null));
+        toChange.Clear(); isAttack = false;
+        ChangeColor(end, new Position(1, -1, null));
+        toChange.Clear(); isAttack = false;
+        ChangeColor(end, new Position(-1, 1, null));
     }
 
     public List<Move> returnPossibleMoves () {
@@ -105,13 +108,20 @@ public class Reversi : Game {
 
         foreach(Piece piece in pieces)
             if(piece.isWhite == isWhitesTurn)
-<<<<<<< HEAD
+
                 possibleMoves.AddRange(piece.GetPawnReversiMoves());
-=======
-                possibleMoves.AddRange(piece.PossibleMoves());
->>>>>>> origin/master
+
 
         return possibleMoves;        
+    }
+
+    public override bool CanMakeMove(Move move) {
+        List<Move> possibleMoves = returnPossibleMoves();
+            foreach (Move m in possibleMoves)
+                if (m.end == move.end)
+                    return true;
+        
+        return false;
     }
 
     public override bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
@@ -119,33 +129,28 @@ public class Reversi : Game {
         Piece piece = field.FindPiece();
 
         return !piece;
-<<<<<<< HEAD
+
     }
 
     public override void MakeMove(Move move) {
   
-        ChangeColor(returnPossibleMoves(), move.end);
+        ChangeColor(move.end);
         board.setPiece(PieceType.RV_PAWN, move.end);
 
-        CheckForPieceEvolve(move);
+        isWhitesTurn = !isWhitesTurn;
 
-        if (returnPossibleMoves().Count != 0)
+        if (returnPossibleMoves().Count == 0)
             isWhitesTurn = !isWhitesTurn;
 
         board.ClearMarkers();
         board.moveHistory.Push(move);
+        board.UpdateStatusText();
 
-        Text OnTheMove = GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text>();
-        if (isWhitesTurn)
-            OnTheMove.text = "White is on the move";
-        else
-            OnTheMove.text = "Black is on the move";
+        MarkFields(new Position(-1,-1,null), returnPossibleMoves());
     }
 
     public override void MarkFields(Position start, List<Move> possibleMoves) {
         board.ClearMarkers();
-
-        board.MakeMarker(start, board.markerSelected);
 
         List<Piece> pieces = board.FindAllPieces(PieceType.RV_PAWN);
         foreach (Piece piece in pieces) {
@@ -157,19 +162,35 @@ public class Reversi : Game {
             }
         }
 
-    }   
+    }
+
+    public bool noMoreMoves() {
+        bool result = false;
+        if (returnPossibleMoves().Count == 0) {
+            isWhitesTurn = !isWhitesTurn;
+            if (returnPossibleMoves().Count == 0)
+                result = true;
+            isWhitesTurn = !isWhitesTurn;
+        }
+
+        return result;
+    }
 
     public override bool CheckForEnd (ref bool? whiteWon) {
         int white = 0;
+        int black = 0;
         List<Piece> pieces = board.FindAllPieces(PieceType.RV_PAWN);
-        if (pieces.Count == 64) {           
-            foreach (Piece piece in pieces)
+        if (pieces.Count == 64 || noMoreMoves()) {
+            foreach (Piece piece in pieces) {
                 if (piece.isWhite)
                     white++;
-
-            if (white > 32)
+                else
+                    black++;
+            }
+                
+            if (white > black)
                 whiteWon = true;
-            if (white < 32)
+            else if (white < black)
                 whiteWon = false;
             else
                 whiteWon = null;
@@ -177,22 +198,10 @@ public class Reversi : Game {
             return true;             
         }
 
-=======
-    }
-
-    public override bool CheckForEnd (ref bool whiteWon) {
->>>>>>> origin/master
         return false;
-    }
-
-    public override bool CheckForPieceEvolve (Move move) {
-        return false;
-<<<<<<< HEAD
-=======
     }
 
     public override Move getAIMove () {
         throw new NotImplementedException();
->>>>>>> origin/master
     }
 }
