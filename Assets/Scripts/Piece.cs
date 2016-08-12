@@ -140,7 +140,8 @@ public class Piece : MonoBehaviour {
 
     public bool orthoMovement;
     public bool singleOrthoMovement;
-    public bool diagonalMovement;
+    public bool chessOrthoMovement;
+    public bool chessDiagonalMovement;
     public bool knightMovement;
     public bool pawnChessMovement;
     public bool kingChessMovement;
@@ -167,9 +168,8 @@ public class Piece : MonoBehaviour {
         for (int i = 1; board.ValidPosition(pos); i++, pos = position + i * direction) {
             if (game.CanMoveTo(pos, pieceType)) {
                 possibleMoves.Add(new Move(position, pos));
-            } else if (!board.CanJumpOver(pos)) {
+            } else
                 break;
-            }
         }
 
         return possibleMoves;
@@ -210,26 +210,67 @@ public class Piece : MonoBehaviour {
         return possibleMoves;
     }
 
-    private List<Move> GetDiagonalMoves(Position direction) {
+    private List<Move> GetChessOrthoMoves(Position direction) {
         List<Move> possibleMoves = new List<Move>();
-
+        
         Position pos = position + direction;
+        
         for (int i = 1; board.ValidPosition(pos); i++, pos = position + i * direction) {
-            if (game.CanMoveTo(pos)) {
+            Piece piece = board.GetField(pos).FindPiece();
+
+            if (game.CanMoveTo(pos, pieceType)) {
                 possibleMoves.Add(new Move(position, pos));
-            }
+            } else if (piece && piece.isWhite != isWhite) {
+                possibleMoves.Add(new Move(position, pos));
+                if (piece.pieceType == PieceType.CH_KING)
+                    ((Chess)game).check = true;
+                break;
+            } else
+                break;
         }
 
         return possibleMoves;
     }
 
-    private List<Move> GetDiagonalMoves() {
+
+    private List<Move> GetChessOrthoMoves() {
         List<Move> possibleMoves = new List<Move>();
 
-        possibleMoves.AddRange(GetDiagonalMoves(new Position(1, 1, null)));
-        possibleMoves.AddRange(GetDiagonalMoves(new Position(1, -1, null)));
-        possibleMoves.AddRange(GetDiagonalMoves(new Position(-1, 1, null)));
-        possibleMoves.AddRange(GetDiagonalMoves(new Position(-1, -1, null)));
+        possibleMoves.AddRange(GetChessOrthoMoves(new Position(1, 0, null)));
+        possibleMoves.AddRange(GetChessOrthoMoves(new Position(-1, 0, null)));
+        possibleMoves.AddRange(GetChessOrthoMoves(new Position(0, 1, null)));
+        possibleMoves.AddRange(GetChessOrthoMoves(new Position(0, -1, null)));
+
+        return possibleMoves;
+    }
+
+    private List<Move> GetChessDiagonalMoves(Position direction) {
+        List<Move> possibleMoves = new List<Move>();
+
+        Position pos = position + direction;
+        for (int i = 1; board.ValidPosition(pos); i++, pos = position + i * direction) {
+            Piece piece = board.GetField(pos).FindPiece();
+            if (game.CanMoveTo(pos)) {
+                possibleMoves.Add(new Move(position, pos));
+            } else if (board.ValidPosition(pos) && piece && piece.isWhite != isWhite) {
+                possibleMoves.Add(new Move(position, pos));
+                if (piece.pieceType == PieceType.CH_KING)
+                    ((Chess)game).check = true;
+                break;
+            } else
+                break;
+        }
+
+        return possibleMoves;
+    }
+
+    private List<Move> GetChessDiagonalMoves() {
+        List<Move> possibleMoves = new List<Move>();
+
+        possibleMoves.AddRange(GetChessDiagonalMoves(new Position(1, 1, null)));
+        possibleMoves.AddRange(GetChessDiagonalMoves(new Position(1, -1, null)));
+        possibleMoves.AddRange(GetChessDiagonalMoves(new Position(-1, 1, null)));
+        possibleMoves.AddRange(GetChessDiagonalMoves(new Position(-1, -1, null)));
 
         return possibleMoves;
     }
@@ -239,8 +280,18 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
 
-        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
+        if (!board.ValidPosition(pos))
+            return possibleMoves;
+
+        Piece piece = board.GetField(pos).FindPiece();
+
+        if (game.CanMoveTo(pos))
             possibleMoves.Add(new Move(position, pos));
+        else if (piece && piece.isWhite != isWhite) {
+            possibleMoves.Add(new Move(position, pos));
+            if (piece.pieceType == PieceType.CH_KING)
+                ((Chess)game).check = true;
+        }
 
         return possibleMoves;
     }
@@ -266,9 +317,22 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
 
-        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
-            possibleMoves.Add(new Move(position, pos));
+        if (!board.ValidPosition(pos))
+            return possibleMoves;
 
+        Piece piece = board.GetField(pos).FindPiece();
+
+        if (direction.x == 0) {
+            if (game.CanMoveTo(pos))
+                possibleMoves.Add(new Move(position, pos));
+        } else {
+            if (piece && piece.isWhite != isWhite) {
+                possibleMoves.Add(new Move(position, pos));
+                if (piece.pieceType == PieceType.CH_KING)
+                    ((Chess)game).check = true;
+            }
+        }
+    
         return possibleMoves;
     }
 
@@ -277,10 +341,14 @@ public class Piece : MonoBehaviour {
 
         if (isWhite) {
             possibleMoves.AddRange(GetPawnChessMoves(new Position(0, -1, null)));
+            possibleMoves.AddRange(GetPawnChessMoves(new Position(-1, -1, null)));
+            possibleMoves.AddRange(GetPawnChessMoves(new Position(1, -1, null)));
             if(position.y == board.height - 2 )
                 possibleMoves.AddRange(GetPawnChessMoves(new Position(0, -2, null)));
         } else {
             possibleMoves.AddRange(GetPawnChessMoves(new Position(0, 1, null)));
+            possibleMoves.AddRange(GetPawnChessMoves(new Position(-1, 1, null)));
+            possibleMoves.AddRange(GetPawnChessMoves(new Position(1, 1, null)));
             if (position.y == 1)
                 possibleMoves.AddRange(GetPawnChessMoves(new Position(0, 2, null)));
         }
@@ -293,8 +361,18 @@ public class Piece : MonoBehaviour {
 
         Position pos = position + direction;
 
-        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
+        if (!board.ValidPosition(pos))
+            return possibleMoves;
+
+        Piece piece = board.GetField(pos).FindPiece();
+
+        if (game.CanMoveTo(pos))
             possibleMoves.Add(new Move(position, pos));
+        else if (piece && piece.isWhite != isWhite) {
+            possibleMoves.Add(new Move(position, pos));
+            if (piece.pieceType == PieceType.CH_KING)
+                ((Chess)game).check = true;
+        }
 
         return possibleMoves;
     }
@@ -406,11 +484,8 @@ public class Piece : MonoBehaviour {
         return possibleMoves;
     }
 
-<<<<<<< HEAD
     public List<Move> GetPawnReversiMoves() {
-=======
-    private List<Move> GetPawnReversiMoves() {
->>>>>>> origin/master
+
         List<Move> possibleMoves = new List<Move>();
 
         ((Reversi)game).isAttack = false;
@@ -433,10 +508,7 @@ public class Piece : MonoBehaviour {
         return possibleMoves;
     }
 
-<<<<<<< HEAD
-=======
-    //*** CHECKERS
->>>>>>> origin/master
+
     public List<Move> PossibleMoves () {
         List<Move> possibleMoves = new List<Move>();
 
@@ -445,10 +517,13 @@ public class Piece : MonoBehaviour {
                 possibleMoves.AddRange(GetOrthoMoves());
             }
             if (singleOrthoMovement) {
-                possibleMoves.AddRange(GetDiagonalMoves());
+                possibleMoves.AddRange(GetChessDiagonalMoves());
             }
-            if (diagonalMovement) {
-                possibleMoves.AddRange(GetDiagonalMoves());
+            if (chessOrthoMovement) {
+                possibleMoves.AddRange(GetChessOrthoMoves());
+            }
+            if (chessDiagonalMovement) {
+                possibleMoves.AddRange(GetChessDiagonalMoves());
             }
             if (knightMovement) {
                 possibleMoves.AddRange(GetKnightMoves());
@@ -466,11 +541,7 @@ public class Piece : MonoBehaviour {
                 possibleMoves.AddRange(GetKingCheckersMoves());
             }
             if (pawnReversiMovement) {
-<<<<<<< HEAD
                 possibleMoves.AddRange(((Reversi)game).returnPossibleMoves());
-=======
-                possibleMoves.AddRange(GetPawnReversiMoves());
->>>>>>> origin/master
             }
         }
 
