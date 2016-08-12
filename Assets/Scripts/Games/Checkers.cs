@@ -42,10 +42,12 @@ public class Checkers : Game {
 
     public override void StartSinglePlayer () {
         SetBoardAndPieces();
+        board.UpdateStatusText();
     }
 
     public override void StartTwoPlayer () {
         SetBoardAndPieces();
+        board.UpdateStatusText();
     }
 
     public override bool Attack (Move move, bool destroy = true) {
@@ -78,12 +80,7 @@ public class Checkers : Game {
 
         board.ClearMarkers();
         board.moveHistory.Push(move);
-
-        Text OnTheMove = GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text>();
-        if (isWhitesTurn)
-            OnTheMove.text = "White is on the move";
-        else
-            OnTheMove.text = "Black is on the move";
+        board.UpdateStatusText();
     }
 
     public override void MarkFields(Position start, List<Move> possibleMoves) {
@@ -106,13 +103,16 @@ public class Checkers : Game {
         possibleMoves.RemoveAll(x => toRemove.Contains(x));
     }
 
+    public override bool CanMakeMove(Move move) {
+        return board.previousPossibleMoves != null && board.previousPossibleMoves.Contains(move);
+    }
+
     public override bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
         Field field = board.GetField(x, y);
         Piece piece = field.FindPiece();
         
         return !piece;
     }
-
 
     public override bool CheckForEnd (ref bool? whiteWon) {
         int white = 0;
@@ -161,7 +161,7 @@ public class Checkers : Game {
 
     }
 
-    public override bool CheckForPieceEvolve (Move move) {
+    public bool CheckForPieceEvolve (Move move) {
         List<Piece> pieces = board.FindAllPieces(PieceType.CK_PAWN);
         foreach (Piece piece in pieces) {
             if (piece.isWhite == isWhitesTurn) {

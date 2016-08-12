@@ -33,23 +33,17 @@ public class Field : MonoBehaviour {
         Piece piece = FindPiece();
         Move move = new Move(board.previousPositionClicked, position);
 
-        if (board.CanMakeMove(move)) {
+        if (board.game.CanMakeMove(move)) {
             board.game.MakeMove(move);
 
             bool? whiteWon = false;
             if (board.game.CheckForEnd(ref whiteWon)) {
-<<<<<<< HEAD
-                Text status = GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text>();
-
+                string text;
                 if (whiteWon.HasValue)
-                    status.text = (whiteWon.Value ? "White" : "Black") + " won!";
+                    text = (whiteWon.Value ? "White" : "Black") + " won!";
                 else
-                    status.text = "Draw!";
-
-=======
-                board.UpdateStatusText((whiteWon ? "White" : "Black") + " won!");
->>>>>>> origin/master
-                board.game.gameEnded = true;
+                    text = "Draw!";
+                board.UpdateStatusText(text);
             }
             
 

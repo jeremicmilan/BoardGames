@@ -53,10 +53,13 @@ public class VikingChess : Game {
 
     public override void StartSinglePlayer () {
         SetBoardAndPieces();
+        board.UpdateStatusText();
+
     }
 
     public override void StartTwoPlayer () {
         SetBoardAndPieces();
+        board.UpdateStatusText();
     }
 
     private bool Attack (Move move, Position direction, bool destroy = false) {
@@ -117,14 +120,8 @@ public class VikingChess : Game {
         isWhitesTurn = !isWhitesTurn;
 
         board.ClearMarkers();
-
         board.moveHistory.Push(move);
-
-        Text OnTheMove = GameObject.FindGameObjectWithTag("OnTheMove").GetComponent<Text>();
-        if (isWhitesTurn)
-            OnTheMove.text = "White is on the move";
-        else
-            OnTheMove.text = "Black is on the move";
+        board.UpdateStatusText();
     }
 
     public override void MarkFields(Position start, List<Move> possibleMoves) {
@@ -139,6 +136,10 @@ public class VikingChess : Game {
                 board.MakeMarker(move.end, board.markerPossible);
             } 
         }
+    }
+
+    public override bool CanMakeMove(Move move) {
+        return board.previousPossibleMoves != null && board.previousPossibleMoves.Contains(move);
     }
 
     public override bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
@@ -212,11 +213,7 @@ public class VikingChess : Game {
         }
         return false;
     }
-
-    public override bool CheckForPieceEvolve (Move move) {
-        return false;
-    }
-
+    
     public override Move getAIMove () {
         throw new NotImplementedException();
     }
