@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public enum GameName { VIKING_CHESS, REVERSI, CHECKERS };
+public enum GameName { VIKING_CHESS, REVERSI, CHECKERS, CHESS };
 
 public class UI : MonoBehaviour {
     public Game game;
@@ -41,6 +41,9 @@ public class UI : MonoBehaviour {
                 break;
             case GameName.CHECKERS:
                 game = new Checkers();
+                break;
+            case GameName.CHESS:
+                game = new Chess();
                 break;
             default:
                 break;
