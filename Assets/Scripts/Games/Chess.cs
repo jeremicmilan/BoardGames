@@ -5,9 +5,6 @@ using System;
 using UnityEngine.UI;
 
 public class Chess : Game {
-
-    public bool check = false;
-
     public Chess ()
         : base(GameName.CHESS, "Chess", "", null) { }
 
@@ -44,13 +41,13 @@ public class Chess : Game {
     public override void StartSinglePlayer() {
         SetBoardAndPieces();
         isWhitesTurn = true;
-        board.UpdateStatusText();
+        board.UpdatePlayerStatusText();
     }
 
     public override void StartTwoPlayer() {
         SetBoardAndPieces();
         isWhitesTurn = true;
-        board.UpdateStatusText();
+        board.UpdatePlayerStatusText();
     }
 
     public override bool Attack(Move move, bool destroy = true) {
@@ -66,54 +63,65 @@ public class Chess : Game {
         return false;
     }
 
-    public override void MakeMove(Move move) {
+    public override void MakeMove(Move move, bool fake = false) {
         Piece piece = move.start.field.FindPiece();
 
         Attack(move);
 
         piece.transform.parent = move.end.field.transform;
         piece.position = move.end;
-        piece.transform.localPosition = new Vector3(0, 0, -1);
 
-        board.ClearMarkers();
+        if (!fake) {
+            piece.transform.localPosition = new Vector3(0, 0, -1);
+            board.ClearMarkers();
+        }
+
         board.moveHistory.Push(move);
 
-        if (stilCheck(move))
-            return;
-
-        isCheck();
+        if (!fake)
+            board.UpdateGameStatusText(isCheck() ? "CHECK!" : "");
 
         isWhitesTurn = !isWhitesTurn;
 
-        if (check)
-            board.UpdateStatusText("CHECK!");
-        else
-            board.UpdateStatusText();       
+        if (!fake)
+            board.UpdatePlayerStatusText();
     }
 
-    public bool stilCheck(Move move) {
-        bool result = false;
-        if (check) {
-            isWhitesTurn = !isWhitesTurn;
-            isCheck();
-            if (check) {
-                UndoMove(move);
-                board.UpdateStatusText("CHECK!");
-                result = true;
-            } else {
-                isWhitesTurn = !isWhitesTurn;
+    public override void UndoMove (Move move, bool fake = false) {
+        base.UndoMove(move, fake);
+
+        isWhitesTurn = !isWhitesTurn;
+
+        if (!fake)
+            board.UpdateGameStatusText(isCheck() ? "CHECK!" : "");
+
+        isWhitesTurn = !isWhitesTurn;
+    }
+
+    public override List<Move> EliminateImpossibleMoves (List<Move> moves) {
+        List<Move> possibleMoves = new List<Move>();
+
+        foreach (Move move in moves) {
+            MakeMove(move, fake : true);
+
+            if (!isCheck()) {
+                possibleMoves.Add(move);
             }
-        }       
 
-        return result;
+            board.Undo(fake : true);
+        }
+
+        return possibleMoves;
     }
 
-    public void isCheck() {
-        check = false;
-        List<Piece> pieces = board.FindAllPieces(isWhitesTurn);
-
-        foreach (Piece piece in pieces)
-            piece.PossibleMoves();
+    public bool isCheck () {
+        foreach (Move move in board.GetAllMoves(isWhitesTurn, eliminateMoves: false)) {
+            Piece endPiece = board.GetPiece(move.end);
+            if (endPiece && endPiece.pieceType == PieceType.CH_KING) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public override void MarkFields(Position start, List<Move> possibleMoves) {
@@ -131,17 +139,26 @@ public class Chess : Game {
     }
 
     public override bool CanMoveTo(int x, int y, PieceType pieceType = PieceType.AL_NONE) {
-        Field field = board.GetField(x, y);
-        Piece piece = field.FindPiece();
-
-        return !piece;
+        return !board.GetField(x, y).FindPiece();
     }
 
     public override bool CanMakeMove(Move move) {
         return board.previousPossibleMoves != null && board.previousPossibleMoves.Contains(move);
     }
-    
+
     public override bool CheckForEnd(ref bool? whiteWon) {
+        if (board.GetAllMoves(isWhitesTurn).Count == 0) {
+            isWhitesTurn = !isWhitesTurn;
+
+            if (isCheck())
+                whiteWon = isWhitesTurn;
+            else
+                whiteWon = null;
+
+            isWhitesTurn = !isWhitesTurn;
+
+            return true;
+        }
         return false;
     }
 
