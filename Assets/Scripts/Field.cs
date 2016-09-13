@@ -38,18 +38,14 @@ public class Field : MonoBehaviour {
 
             bool? whiteWon = false;
             if (board.game.CheckForEnd(ref whiteWon)) {
-
                 string text;
 
                 if (whiteWon.HasValue)
                     text = (whiteWon.Value ? "White" : "Black") + " won!";
                 else
                     text = "Draw!";
-                board.UpdateStatusText(text);
-
+                board.UpdateGameStatusText(text);
             }
-            
-
         } else if (piece) {
             piece.OnClick();
         } else {

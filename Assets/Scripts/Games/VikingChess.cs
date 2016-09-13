@@ -53,13 +53,12 @@ public class VikingChess : Game {
 
     public override void StartSinglePlayer () {
         SetBoardAndPieces();
-        board.UpdateStatusText();
-
+        board.UpdatePlayerStatusText();
     }
 
     public override void StartTwoPlayer () {
         SetBoardAndPieces();
-        board.UpdateStatusText();
+        board.UpdatePlayerStatusText();
     }
 
     private bool Attack (Move move, Position direction, bool destroy = false) {
@@ -80,7 +79,7 @@ public class VikingChess : Game {
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -108,7 +107,7 @@ public class VikingChess : Game {
         return attacked;
     }
 
-    public override void MakeMove(Move move) {
+    public override void MakeMove(Move move, bool fake = false) {
         Piece piece = move.start.field.FindPiece();
 
         piece.transform.parent = move.end.field.transform;
@@ -121,7 +120,7 @@ public class VikingChess : Game {
 
         board.ClearMarkers();
         board.moveHistory.Push(move);
-        board.UpdateStatusText();
+        board.UpdatePlayerStatusText();
     }
 
     public override void MarkFields(Position start, List<Move> possibleMoves) {
@@ -134,7 +133,7 @@ public class VikingChess : Game {
                 board.MakeMarker(move.end, board.markerAttack);
             } else {
                 board.MakeMarker(move.end, board.markerPossible);
-            } 
+            }
         }
     }
 
@@ -183,7 +182,7 @@ public class VikingChess : Game {
         if (!board.ValidPosition(position)) {
             return true;
         }
-        
+
         if (!piece) {
             return field.fieldType == FieldType.CASTL || field.fieldType == FieldType.ESCAP;
         } else if (piece.isWhite == false) {
@@ -213,7 +212,7 @@ public class VikingChess : Game {
         }
         return false;
     }
-    
+
     public override Move getAIMove () {
         throw new NotImplementedException();
     }

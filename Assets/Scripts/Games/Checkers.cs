@@ -42,12 +42,12 @@ public class Checkers : Game {
 
     public override void StartSinglePlayer () {
         SetBoardAndPieces();
-        board.UpdateStatusText();
+        board.UpdatePlayerStatusText();
     }
 
     public override void StartTwoPlayer () {
         SetBoardAndPieces();
-        board.UpdateStatusText();
+        board.UpdatePlayerStatusText();
     }
 
     public override bool Attack (Move move, bool destroy = true) {
@@ -57,20 +57,20 @@ public class Checkers : Game {
                 move.eatenPieces.Add(piece);
                 board.SendToGraveyard(piece);
             }
-            return true; 
+            return true;
         }
-       
+
 
         return false;
     }
 
-    public override void MakeMove(Move move) {
+    public override void MakeMove(Move move, bool fake = false) {
         Piece piece = move.start.field.FindPiece();
 
         piece.transform.parent = move.end.field.transform;
         piece.position = move.end;
         piece.transform.localPosition = new Vector3(0, 0, -1);
-       
+
         CheckForPieceEvolve(move);
 
         bool attacked = Attack(move);
@@ -80,7 +80,7 @@ public class Checkers : Game {
 
         board.ClearMarkers();
         board.moveHistory.Push(move);
-        board.UpdateStatusText();
+        board.UpdatePlayerStatusText();
     }
 
     public override void MarkFields(Position start, List<Move> possibleMoves) {
@@ -110,7 +110,7 @@ public class Checkers : Game {
     public override bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
         Field field = board.GetField(x, y);
         Piece piece = field.FindPiece();
-        
+
         return !piece;
     }
 
@@ -178,7 +178,7 @@ public class Checkers : Game {
     }
 
     public bool CheckForAttack() {
-        
+
         List<Piece> pieces = board.FindAllPieces(PieceType.CK_PAWN);
         foreach(Piece piece in pieces) {
             if (piece.isWhite == isWhitesTurn) {
@@ -203,7 +203,7 @@ public class Checkers : Game {
             }
         }
 
-       
+
         return false;
     }
 

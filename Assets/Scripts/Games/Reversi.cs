@@ -44,7 +44,7 @@ public class Reversi : Game {
         board.markerPossible = board.markerInvisible;
         board.markerSelected = board.markerInvisible;
         MarkFields(new Position(-1, -1, null), returnPossibleMoves());
-        board.UpdateStatusText();
+        board.UpdatePlayerStatusText();
     }
 
     public override void StartTwoPlayer () {
@@ -52,7 +52,7 @@ public class Reversi : Game {
         board.markerPossible = board.markerInvisible;
         board.markerSelected = board.markerInvisible;
         MarkFields(new Position(-1, -1, null), returnPossibleMoves());
-        board.UpdateStatusText();
+        board.UpdatePlayerStatusText();
     }
 
     public override bool Attack (Move move, bool destroy = true) {
@@ -60,7 +60,6 @@ public class Reversi : Game {
     }
 
     public void ChangeColor(Position pos, Position direction) {
-
         Position currentPosition = pos + direction;
 
         if (!board.ValidPosition(currentPosition) || CanMoveTo(currentPosition))
@@ -108,11 +107,10 @@ public class Reversi : Game {
 
         foreach(Piece piece in pieces)
             if(piece.isWhite == isWhitesTurn)
-
                 possibleMoves.AddRange(piece.GetPawnReversiMoves());
 
 
-        return possibleMoves;        
+        return possibleMoves;
     }
 
     public override bool CanMakeMove(Move move) {
@@ -120,7 +118,7 @@ public class Reversi : Game {
             foreach (Move m in possibleMoves)
                 if (m.end == move.end)
                     return true;
-        
+
         return false;
     }
 
@@ -129,11 +127,10 @@ public class Reversi : Game {
         Piece piece = field.FindPiece();
 
         return !piece;
-
     }
 
-    public override void MakeMove(Move move) {
-  
+    public override void MakeMove(Move move, bool fake = false) {
+
         ChangeColor(move.end);
         board.setPiece(PieceType.RV_PAWN, move.end);
 
@@ -144,7 +141,7 @@ public class Reversi : Game {
 
         board.ClearMarkers();
         board.moveHistory.Push(move);
-        board.UpdateStatusText();
+        board.UpdatePlayerStatusText();
 
         MarkFields(new Position(-1,-1,null), returnPossibleMoves());
     }
@@ -187,7 +184,7 @@ public class Reversi : Game {
                 else
                     black++;
             }
-                
+
             if (white > black)
                 whiteWon = true;
             else if (white < black)
@@ -195,7 +192,7 @@ public class Reversi : Game {
             else
                 whiteWon = null;
 
-            return true;             
+            return true;
         }
 
         return false;

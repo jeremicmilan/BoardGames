@@ -27,18 +27,21 @@ public abstract class Game {
 
     public abstract bool Attack (Move move, bool destroy = true);
     public abstract void MarkFields(Position start, List<Move> possibleMoves);
-    public abstract void MakeMove(Move move);
+    public abstract void MakeMove(Move move, bool fake = false);
 
-    public virtual void UndoMove(Move move) {
+    public virtual void UndoMove(Move move, bool fake = false) {
         Piece piece = move.end.field.FindPiece();
 
         piece.transform.parent = move.start.field.transform;
         piece.position = move.start;
-        piece.transform.localPosition = new Vector3(0, 0, -1);
+
+        if (!fake) {
+            piece.transform.localPosition = new Vector3(0, 0, -1);
+            board.ClearMarkers();
+        }
 
         isWhitesTurn = !isWhitesTurn;
 
-        board.ClearMarkers();
         gameEnded = false;
 
         foreach (Piece p in move.eatenPieces) {
@@ -46,7 +49,13 @@ public abstract class Game {
             p.transform.localPosition = new Vector3(0, 0, -1);
         }
 
-        board.UpdateStatusText();
+        if (!fake) {
+            board.UpdatePlayerStatusText();
+        }
+    }
+
+    public virtual List<Move> EliminateImpossibleMoves (List<Move> moves) {
+        return moves;
     }
 
     public abstract bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE);
@@ -57,6 +66,10 @@ public abstract class Game {
     }
 
     public abstract bool CheckForEnd (ref bool? whiteWon);
-    
+
     public abstract Move getAIMove ();
+    public int minimax (Field[,] board) {
+
+        return 0;
+    }
 }
