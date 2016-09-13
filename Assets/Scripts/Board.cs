@@ -72,7 +72,7 @@ public class Board : MonoBehaviour {
         float sizeX = size.x;
 
         float scaleFactor = 1.3f * Mathf.Min(((float)Screen.width / width) / 300f, ((float)Screen.height / height) / 300f);
-        Vector3 initialPosition = -sizeX * new Vector3(width / 2f, height / 2f, 0) + size / 2 + new Vector3(7, 0, 0); 
+        Vector3 initialPosition = -sizeX * new Vector3(width / 2f, height / 2f, 0) + size / 2 + new Vector3(7, 0, 0);
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
@@ -252,7 +252,7 @@ public class Board : MonoBehaviour {
     }
 
     public Piece GetPiece (int x, int y) {
-        return 
+        return
             board[y, x].FindPiece();
     }
 
@@ -295,19 +295,12 @@ public class Board : MonoBehaviour {
         markers.Add(instantiatedMarker);
     }
 
-    
-
     public void MarkSelected (Position start) {
         game.MarkFields(start, new List<Move>());
     }
 
-    public void UpdateStatusText (string text = null) {
-        Text status = GameObject.FindGameObjectWithTag("status").GetComponent<Text>();
-
-        if (text != null) {
-            status.text = text;
-            return;
-        }
+    public void UpdatePlayerStatusText () {
+        Text status = GameObject.FindGameObjectWithTag("player status").GetComponent<Text>();
 
         if (game.isWhitesTurn)
             status.text = "White is on the move";
@@ -315,6 +308,11 @@ public class Board : MonoBehaviour {
             status.text = "Black is on the move";
     }
 
+    public void UpdateGameStatusText (string text) {
+        Text status = GameObject.FindGameObjectWithTag("game status").GetComponent<Text>();
+
+        status.text = text;
+    }
 
     public Piece FindPiece (PieceType pieceType) {
         for (int i = 0; i < width; i++) {
@@ -328,7 +326,7 @@ public class Board : MonoBehaviour {
         return null;
     }
 
-    public List<Piece> FindAllPieces(PieceType pieceType) {       
+    public List<Piece> FindAllPieces(PieceType pieceType) {
         List<Piece> pieces = new List<Piece> ();
 
         for (int i = 0; i < width; i++) {
@@ -338,8 +336,8 @@ public class Board : MonoBehaviour {
                     pieces.Add(piece);
                 }
             }
-        }       
-        return pieces;       
+        }
+        return pieces;
     }
 
     public List<Piece> FindAllPieces(bool isWhite) {
@@ -356,12 +354,20 @@ public class Board : MonoBehaviour {
         return pieces;
     }
 
-    
-    public void Undo () {
+    public List<Move> GetAllMoves(bool isWhite, bool eliminateMoves = true) {
+        List<Move> allMoves = new List<Move>();
+
+        foreach (Piece piece in FindAllPieces(isWhite))
+            allMoves.AddRange(piece.PossibleMoves(eliminateMoves));
+
+        return allMoves;
+    }
+
+    public void Undo (bool fake = false) {
         if (moveHistory.Count > 0) {
             Move move = moveHistory.Pop();
 
-            game.UndoMove(move);
+            game.UndoMove(move, fake);
         }
     }
 
