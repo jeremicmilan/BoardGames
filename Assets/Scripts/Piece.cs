@@ -190,12 +190,12 @@ public class Piece : MonoBehaviour {
         List<Move> possibleMoves = new List<Move>();
 
         Position pos = position + direction;
-        
-        if (board.ValidPosition(pos) && game.CanMoveTo(pos)) 
+
+        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
             possibleMoves.Add(new Move(position, pos));
-               
+
         return possibleMoves;
-    
+
     }
 
 
@@ -212,9 +212,9 @@ public class Piece : MonoBehaviour {
 
     private List<Move> GetChessOrthoMoves(Position direction) {
         List<Move> possibleMoves = new List<Move>();
-        
+
         Position pos = position + direction;
-        
+
         for (int i = 1; board.ValidPosition(pos); i++, pos = position + i * direction) {
             Piece piece = board.GetField(pos).FindPiece();
 
@@ -222,8 +222,6 @@ public class Piece : MonoBehaviour {
                 possibleMoves.Add(new Move(position, pos));
             } else if (piece && piece.isWhite != isWhite) {
                 possibleMoves.Add(new Move(position, pos));
-                if (piece.pieceType == PieceType.CH_KING)
-                    ((Chess)game).check = true;
                 break;
             } else
                 break;
@@ -254,8 +252,6 @@ public class Piece : MonoBehaviour {
                 possibleMoves.Add(new Move(position, pos));
             } else if (board.ValidPosition(pos) && piece && piece.isWhite != isWhite) {
                 possibleMoves.Add(new Move(position, pos));
-                if (piece.pieceType == PieceType.CH_KING)
-                    ((Chess)game).check = true;
                 break;
             } else
                 break;
@@ -289,8 +285,6 @@ public class Piece : MonoBehaviour {
             possibleMoves.Add(new Move(position, pos));
         else if (piece && piece.isWhite != isWhite) {
             possibleMoves.Add(new Move(position, pos));
-            if (piece.pieceType == PieceType.CH_KING)
-                ((Chess)game).check = true;
         }
 
         return possibleMoves;
@@ -308,7 +302,7 @@ public class Piece : MonoBehaviour {
         possibleMoves.AddRange(GetKnightMoves(new Position(-1, 2, null)));
         possibleMoves.AddRange(GetKnightMoves(new Position(-1, -2, null)));
 
-       
+
         return possibleMoves;
     }
 
@@ -328,11 +322,9 @@ public class Piece : MonoBehaviour {
         } else {
             if (piece && piece.isWhite != isWhite) {
                 possibleMoves.Add(new Move(position, pos));
-                if (piece.pieceType == PieceType.CH_KING)
-                    ((Chess)game).check = true;
             }
         }
-    
+
         return possibleMoves;
     }
 
@@ -352,7 +344,7 @@ public class Piece : MonoBehaviour {
             if (position.y == 1)
                 possibleMoves.AddRange(GetPawnChessMoves(new Position(0, 2, null)));
         }
-        
+
         return possibleMoves;
     }
 
@@ -370,8 +362,6 @@ public class Piece : MonoBehaviour {
             possibleMoves.Add(new Move(position, pos));
         else if (piece && piece.isWhite != isWhite) {
             possibleMoves.Add(new Move(position, pos));
-            if (piece.pieceType == PieceType.CH_KING)
-                ((Chess)game).check = true;
         }
 
         return possibleMoves;
@@ -397,7 +387,7 @@ public class Piece : MonoBehaviour {
         List<Move> possibleMoves = new List<Move>();
 
         Position pos = position + direction;
-        
+
         if (board.ValidPosition(pos) && game.CanMoveTo(pos))
             if (Math.Abs(direction.x) == 2) {
                 if (!game.CanMoveTo(position + new Position(direction.x / 2, direction.y / 2, null)))
@@ -485,7 +475,6 @@ public class Piece : MonoBehaviour {
     }
 
     public List<Move> GetPawnReversiMoves() {
-
         List<Move> possibleMoves = new List<Move>();
 
         ((Reversi)game).isAttack = false;
@@ -509,7 +498,7 @@ public class Piece : MonoBehaviour {
     }
 
 
-    public List<Move> PossibleMoves () {
+    public List<Move> PossibleMoves (bool eliminateMoves = true) {
         List<Move> possibleMoves = new List<Move>();
 
         if (game.isWhitesTurn == isWhite) {
@@ -545,7 +534,10 @@ public class Piece : MonoBehaviour {
             }
         }
 
-        return possibleMoves;
+        if (eliminateMoves)
+            return game.EliminateImpossibleMoves(possibleMoves);
+        else
+            return possibleMoves;
     }
 
     public void OnClick () {
