@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2015
+# Visual Studio 2013
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoardGames.CSharp", "BoardGames.CSharp.csproj", "{71B1D551-729C-9894-E03E-AEE103E324DA}"
 EndProject
 Global
