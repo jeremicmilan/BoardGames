@@ -74,7 +74,9 @@ public class Chess : Game {
         if (!fake) {
             piece.transform.localPosition = new Vector3(0, 0, -1);
             board.ClearMarkers();
-        }
+            if (CheckForPieceEvolve(move))
+                move.pieceEvolved = true;
+        }       
 
         board.moveHistory.Push(move);
 
@@ -90,6 +92,9 @@ public class Chess : Game {
     public override void UndoMove (Move move, bool fake = false) {
         base.UndoMove(move, fake);
 
+        if (move.pieceEvolved)
+            PieceDevolve(move);
+        
         isWhitesTurn = !isWhitesTurn;
 
         if (!fake)
@@ -144,6 +149,33 @@ public class Chess : Game {
 
     public override bool CanMakeMove(Move move) {
         return board.previousPossibleMoves != null && board.previousPossibleMoves.Contains(move);
+    }
+
+    public bool CheckForPieceEvolve(Move move) {
+        List<Piece> pieces = board.FindAllPieces(PieceType.CH_PAWN);
+        foreach (Piece piece in pieces) {
+            if (piece.isWhite == isWhitesTurn) {
+                if ((isWhitesTurn && piece.position.y == 0) || (!isWhitesTurn && piece.position.y == board.height - 1)) {
+                    move.eatenPieces.Add(piece);
+                    board.SendToGraveyard(piece);
+                    board.setPiece(PieceType.CH_QUEE, move.end);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public void PieceDevolve(Move move) {
+        board.SendToGraveyard(move.start.field.FindPiece());
+        Piece piece = move.end.field.FindPiece();
+
+        piece.transform.parent = move.start.field.transform;
+        piece.position = move.start;
+        piece.transform.localPosition = new Vector3(0, 0, -1);
+        board.ClearMarkers();
+ 
     }
 
     public override bool CheckForEnd(ref bool? whiteWon) {

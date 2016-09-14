@@ -71,7 +71,9 @@ public class Checkers : Game {
         piece.position = move.end;
         piece.transform.localPosition = new Vector3(0, 0, -1);
 
-        CheckForPieceEvolve(move);
+        if (CheckForPieceEvolve(move))
+            move.pieceEvolved = true;
+        
 
         bool attacked = Attack(move);
 
@@ -81,6 +83,14 @@ public class Checkers : Game {
         board.ClearMarkers();
         board.moveHistory.Push(move);
         board.UpdatePlayerStatusText();
+    }
+
+    public override void UndoMove(Move move, bool fake = false) {
+        base.UndoMove(move);
+
+        if (move.pieceEvolved)
+            PieceDevolve(move);
+
     }
 
     public override void MarkFields(Position start, List<Move> possibleMoves) {
@@ -175,6 +185,17 @@ public class Checkers : Game {
         }
 
         return false;
+    }
+
+    public void PieceDevolve(Move move) {
+        board.SendToGraveyard(move.start.field.FindPiece());
+        Piece piece = move.end.field.FindPiece();
+
+        piece.transform.parent = move.start.field.transform;
+        piece.position = move.start;
+        piece.transform.localPosition = new Vector3(0, 0, -1);
+        board.ClearMarkers();
+
     }
 
     public bool CheckForAttack() {
