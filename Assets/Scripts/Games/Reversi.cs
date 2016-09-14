@@ -16,6 +16,7 @@ public class Reversi : Game {
 
         board = boardObject.GetComponent<Board>();
         board.game = this;
+        ai.board = board;
         board.graveyard = GameObject.Find("Graveyard");
 
         board.BuildBoard(8, 8, BoardType.UNCHECKERED);
@@ -81,7 +82,7 @@ public class Reversi : Game {
         }
     }
 
-   
+
     public void ChangeColor(Move move) {
         Position end = move.end;
 
@@ -227,6 +228,10 @@ public class Reversi : Game {
     }
 
     public override Move getAIMove () {
+        throw new NotImplementedException();
+    }
+
+    public override int scoreBoard () {
         throw new NotImplementedException();
     }
 }

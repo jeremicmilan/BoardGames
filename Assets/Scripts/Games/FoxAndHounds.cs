@@ -13,6 +13,7 @@ public class FoxAndHounds : Game {
 
         board = boardObject.GetComponent<Board>();
         board.game = this;
+        ai.board = board;
         board.graveyard = GameObject.Find("Graveyard");
 
         board.BuildBoard(8, 8, BoardType.CHECKERED);
@@ -55,8 +56,8 @@ public class FoxAndHounds : Game {
 
     private void SetFox() {
         System.Random r = new System.Random();
-        int n = r.Next(0, 3);   
-        
+        int n = r.Next(0, 3);
+
         Field field = board.GetField(n*2 + 1, 0);
         board.setPiece(PieceType.FAH_FOX, field.position);
     }
@@ -79,13 +80,13 @@ public class FoxAndHounds : Game {
         board.UpdatePlayerStatusText();
     }
 
-    
+
     public override void MarkFields(Position start, List<Move> possibleMoves) {
         board.ClearMarkers();
         board.MakeMarker(start, board.markerSelected);
 
         foreach (Move move in possibleMoves) {
-                board.MakeMarker(move.end, board.markerPossible);            
+                board.MakeMarker(move.end, board.markerPossible);
         }
 
     }
@@ -121,5 +122,8 @@ public class FoxAndHounds : Game {
         throw new NotImplementedException();
     }
 
+    public override int scoreBoard () {
+        throw new NotImplementedException();
+    }
 }
 

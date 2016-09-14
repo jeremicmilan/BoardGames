@@ -5,7 +5,6 @@ using System;
 using UnityEngine.UI;
 
 public class VikingChess : Game {
-
     List<Position> visitedPositions = new List<Position>();
 
     public VikingChess ()
@@ -16,6 +15,7 @@ public class VikingChess : Game {
 
         board = boardObject.GetComponent<Board>();
         board.game = this;
+        ai.board = board;
         board.graveyard = GameObject.Find("Graveyard");
 
         board.BuildBoard(9, 9, BoardType.CUSTOM,
@@ -215,5 +215,9 @@ public class VikingChess : Game {
 
     public override Move getAIMove () {
         throw new NotImplementedException();
+    }
+
+    public override int scoreBoard () {
+        return new System.Random().Next();
     }
 }

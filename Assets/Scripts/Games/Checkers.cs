@@ -13,6 +13,7 @@ public class Checkers : Game {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
 
         board = boardObject.GetComponent<Board>();
+        ai.board = board;
         board.game = this;
         board.graveyard = GameObject.Find("Graveyard");
 
@@ -73,7 +74,7 @@ public class Checkers : Game {
 
         if (CheckForPieceEvolve(move))
             move.pieceEvolved = true;
-        
+
 
         bool attacked = Attack(move);
 
@@ -229,6 +230,10 @@ public class Checkers : Game {
     }
 
     public override Move getAIMove () {
+        throw new NotImplementedException();
+    }
+
+    public override int scoreBoard () {
         throw new NotImplementedException();
     }
 }

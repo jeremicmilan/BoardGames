@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
+using UnityEngine.Assertions;
 
 public class Chess : Game {
     public Chess ()
@@ -13,6 +14,7 @@ public class Chess : Game {
 
         board = boardObject.GetComponent<Board>();
         board.game = this;
+        ai.board = board;
         board.graveyard = GameObject.Find("Graveyard");
 
         board.BuildBoard(8, 8, BoardType.CHECKERED);
@@ -42,12 +44,14 @@ public class Chess : Game {
         SetBoardAndPieces();
         isWhitesTurn = true;
         board.UpdatePlayerStatusText();
+        playingAgainstAI = true;
     }
 
     public override void StartTwoPlayer() {
         SetBoardAndPieces();
         isWhitesTurn = true;
         board.UpdatePlayerStatusText();
+        playingAgainstAI = false;
     }
 
     public override bool Attack(Move move, bool destroy = true) {
@@ -65,18 +69,19 @@ public class Chess : Game {
 
     public override void MakeMove(Move move, bool fake = false) {
         Piece piece = move.start.field.FindPiece();
+        Assert.IsNotNull(piece);
 
         Attack(move);
 
         piece.transform.parent = move.end.field.transform;
         piece.position = move.end;
+        piece.transform.localPosition = new Vector3(0, 0, -1);
 
         if (!fake) {
-            piece.transform.localPosition = new Vector3(0, 0, -1);
             board.ClearMarkers();
             if (CheckForPieceEvolve(move))
                 move.pieceEvolved = true;
-        }       
+        }
 
         board.moveHistory.Push(move);
 
@@ -87,6 +92,9 @@ public class Chess : Game {
 
         if (!fake)
             board.UpdatePlayerStatusText();
+
+        if (playingAgainstAI && !fake && !isWhitesTurn)
+            MakeMove(getAIMove());
     }
 
     public override void UndoMove (Move move, bool fake = false) {
@@ -94,7 +102,7 @@ public class Chess : Game {
 
         if (move.pieceEvolved)
             PieceDevolve(move);
-        
+
         isWhitesTurn = !isWhitesTurn;
 
         if (!fake)
@@ -175,7 +183,7 @@ public class Chess : Game {
         piece.position = move.start;
         piece.transform.localPosition = new Vector3(0, 0, -1);
         board.ClearMarkers();
- 
+
     }
 
     public override bool CheckForEnd(ref bool? whiteWon) {
@@ -195,6 +203,10 @@ public class Chess : Game {
     }
 
     public override Move getAIMove() {
-        throw new NotImplementedException();
+        return ai.minimax();
+    }
+
+    public override int scoreBoard () {
+        return new System.Random().Next();
     }
 }

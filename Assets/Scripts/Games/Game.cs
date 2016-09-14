@@ -9,6 +9,8 @@ public abstract class Game {
     public string name;
     public string description;
     public GameObject picture;
+    public AI ai;
+    public bool playingAgainstAI = false;
 
     public Board board;
 
@@ -20,6 +22,7 @@ public abstract class Game {
         this.name = name;
         this.description = name;
         this.picture = picture;
+        ai = new AI(this);
     }
 
     public abstract void StartSinglePlayer ();
@@ -34,9 +37,9 @@ public abstract class Game {
 
         piece.transform.parent = move.start.field.transform;
         piece.position = move.start;
+        piece.transform.localPosition = new Vector3(0, 0, -1);
 
         if (!fake) {
-            piece.transform.localPosition = new Vector3(0, 0, -1);
             board.ClearMarkers();
         }
 
@@ -69,8 +72,6 @@ public abstract class Game {
     public abstract bool CheckForEnd (ref bool? whiteWon);
 
     public abstract Move getAIMove ();
-    public int minimax (Field[,] board) {
+    public abstract int scoreBoard ();
 
-        return 0;
-    }
 }
