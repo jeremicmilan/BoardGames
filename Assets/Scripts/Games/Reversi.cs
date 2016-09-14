@@ -81,24 +81,34 @@ public class Reversi : Game {
         }
     }
 
+   
+    public void ChangeColor(Move move) {
+        Position end = move.end;
 
-    public void ChangeColor(Position end) {
         toChange.Clear(); isAttack = false;
         ChangeColor(end, new Position(0, 1, null));
+        move.eatenPieces.AddRange(toChange);
         toChange.Clear(); isAttack = false;
         ChangeColor(end, new Position(0, -1, null));
+        move.eatenPieces.AddRange(toChange);
         toChange.Clear(); isAttack = false;
         ChangeColor(end, new Position(1, 0, null));
+        move.eatenPieces.AddRange(toChange);
         toChange.Clear(); isAttack = false;
         ChangeColor(end, new Position(-1, 0, null));
+        move.eatenPieces.AddRange(toChange);
         toChange.Clear(); isAttack = false;
         ChangeColor(end, new Position(1, 1, null));
+        move.eatenPieces.AddRange(toChange);
         toChange.Clear(); isAttack = false;
         ChangeColor(end, new Position(-1, -1, null));
+        move.eatenPieces.AddRange(toChange);
         toChange.Clear(); isAttack = false;
         ChangeColor(end, new Position(1, -1, null));
+        move.eatenPieces.AddRange(toChange);
         toChange.Clear(); isAttack = false;
         ChangeColor(end, new Position(-1, 1, null));
+        move.eatenPieces.AddRange(toChange);
     }
 
     public List<Move> returnPossibleMoves () {
@@ -131,7 +141,7 @@ public class Reversi : Game {
 
     public override void MakeMove(Move move, bool fake = false) {
 
-        ChangeColor(move.end);
+        ChangeColor(move);
         board.setPiece(PieceType.RV_PAWN, move.end);
 
         isWhitesTurn = !isWhitesTurn;
@@ -144,6 +154,24 @@ public class Reversi : Game {
         board.UpdatePlayerStatusText();
 
         MarkFields(new Position(-1,-1,null), returnPossibleMoves());
+    }
+
+    public override void UndoMove(Move move, bool fake = false) {
+        board.SendToGraveyard(move.end.field.FindPiece());
+
+        foreach (Piece p in move.eatenPieces) {
+            board.SendToGraveyard(p.position.field.FindPiece());
+            p.transform.parent = p.position.field.transform;
+            p.transform.localPosition = new Vector3(0, 0, -1);
+        }
+
+        isWhitesTurn = !isWhitesTurn;
+
+        if (!fake) {
+            board.UpdatePlayerStatusText();
+            board.ClearMarkers();
+            MarkFields(new Position(-1, -1, null), returnPossibleMoves());
+        }
     }
 
     public override void MarkFields(Position start, List<Move> possibleMoves) {
@@ -161,7 +189,7 @@ public class Reversi : Game {
 
     }
 
-    public bool noMoreMoves() {
+    public bool NoMoreMoves() {
         bool result = false;
         if (returnPossibleMoves().Count == 0) {
             isWhitesTurn = !isWhitesTurn;
@@ -177,7 +205,7 @@ public class Reversi : Game {
         int white = 0;
         int black = 0;
         List<Piece> pieces = board.FindAllPieces(PieceType.RV_PAWN);
-        if (pieces.Count == 64 || noMoreMoves()) {
+        if (pieces.Count == 64 || NoMoreMoves()) {
             foreach (Piece piece in pieces) {
                 if (piece.isWhite)
                     white++;
