@@ -84,6 +84,7 @@ public class Move {
     public Position end;
 
     public List<Piece> eatenPieces = new List<Piece>();
+    public bool pieceEvolved = false;
 
     public bool isAttack = false;
 
@@ -148,6 +149,8 @@ public class Piece : MonoBehaviour {
     public bool pawnCheckersMovement;
     public bool kingCheckersMovement;
     public bool pawnReversiMovement;
+    public bool foxMovement;
+    public bool houndMovement;
 
     public PieceType pieceType;
     public bool isWhite;
@@ -454,6 +457,48 @@ public class Piece : MonoBehaviour {
         return possibleMoves;
     }
 
+    private List<Move> GetHoundMoves(Position direction) {
+        List<Move> possibleMoves = new List<Move>();
+
+        Position pos = position + direction;
+
+        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
+                possibleMoves.Add(new Move(position, pos));
+
+        return possibleMoves;
+    }
+
+    private List<Move> GetHoundMoves() {
+        List<Move> possibleMoves = new List<Move>();
+
+        possibleMoves.AddRange(GetHoundMoves(new Position(1, -1, null)));
+        possibleMoves.AddRange(GetHoundMoves(new Position(-1, -1, null)));
+
+        return possibleMoves;
+    }
+
+    private List<Move> GetFoxMoves(Position direction) {
+        List<Move> possibleMoves = new List<Move>();
+
+        Position pos = position + direction;
+
+        if (board.ValidPosition(pos) && game.CanMoveTo(pos))
+                possibleMoves.Add(new Move(position, pos));
+
+        return possibleMoves;
+    }
+
+    private List<Move> GetFoxMoves() {
+        List<Move> possibleMoves = new List<Move>();
+
+        possibleMoves.AddRange(GetFoxMoves(new Position(1, -1, null)));
+        possibleMoves.AddRange(GetFoxMoves(new Position(-1, -1, null)));
+        possibleMoves.AddRange(GetFoxMoves(new Position(1, 1, null)));
+        possibleMoves.AddRange(GetFoxMoves(new Position(-1, 1, null)));
+        
+        return possibleMoves;
+    }
+
     private List<Move> GetPawnReversiMoves(Position direction, Position pos) {
         List<Move> possibleMoves = new List<Move>();
 
@@ -498,6 +543,8 @@ public class Piece : MonoBehaviour {
     }
 
 
+
+
     public List<Move> PossibleMoves (bool eliminateMoves = true) {
         List<Move> possibleMoves = new List<Move>();
 
@@ -528,6 +575,12 @@ public class Piece : MonoBehaviour {
             }
             if (kingCheckersMovement) {
                 possibleMoves.AddRange(GetKingCheckersMoves());
+            }
+            if (foxMovement) {
+                possibleMoves.AddRange(GetFoxMoves());
+            }
+            if (houndMovement) {
+                possibleMoves.AddRange(GetHoundMoves());
             }
             if (pawnReversiMovement) {
                 possibleMoves.AddRange(((Reversi)game).returnPossibleMoves());

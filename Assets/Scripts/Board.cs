@@ -8,6 +8,7 @@ public enum PieceType { CH_PAWN, CH_KING, CH_KNIG, CH_BISH, CH_ROOK, CH_QUEE,
                         VK_KING, VK_ROOK,
                         CK_PAWN, CK_KING,
                         RV_PAWN,
+                        FAH_FOX, FAH_HOU,
                         AL_NONE };
 
 public class Board : MonoBehaviour {
@@ -36,6 +37,9 @@ public class Board : MonoBehaviour {
     public GameObject checkersKing;
 
     public GameObject reversiPawn;
+
+    public GameObject fox;
+    public GameObject hound;
 
     [HideInInspector]
     public GameObject graveyard;
@@ -168,6 +172,13 @@ public class Board : MonoBehaviour {
                         pieceObject = Instantiate(reversiPawn);
                         break;
 
+                    case PieceType.FAH_FOX:
+                        pieceObject = Instantiate(fox);
+                        break;
+                    case PieceType.FAH_HOU:
+                        pieceObject = Instantiate(hound);
+                        break;
+
                     default:
                         continue;
                 }
@@ -227,6 +238,12 @@ public class Board : MonoBehaviour {
             case PieceType.RV_PAWN:
                 pieceObject = Instantiate(reversiPawn);
                 break;
+            case PieceType.FAH_HOU:
+                pieceObject = Instantiate(hound);
+                break;
+            case PieceType.FAH_FOX:
+                pieceObject = Instantiate(fox);
+                break;
         }
         Piece piece = pieceObject.GetComponent<Piece>();
         piece.transform.parent = position.field.transform;
@@ -285,6 +302,11 @@ public class Board : MonoBehaviour {
 
     public void MakeMarker (Position position, GameObject marker) {
         Field field = position.field;
+
+        foreach (Transform child in field.transform) {
+            if (child.name == "marker attack(Clone)")
+                return;
+        }
 
         GameObject instantiatedMarker = Instantiate(marker);
 

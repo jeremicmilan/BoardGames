@@ -43,6 +43,7 @@ public abstract class Game {
         isWhitesTurn = !isWhitesTurn;
 
         gameEnded = false;
+        board.UpdateGameStatusText("");
 
         foreach (Piece p in move.eatenPieces) {
             p.transform.parent = p.position.field.transform;
