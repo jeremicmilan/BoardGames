@@ -303,11 +303,6 @@ public class Board : MonoBehaviour {
     public void MakeMarker (Position position, GameObject marker) {
         Field field = position.field;
 
-        foreach (Transform child in field.transform) {
-            if (child.name == "marker attack(Clone)")
-                return;
-        }
-
         GameObject instantiatedMarker = Instantiate(marker);
 
         instantiatedMarker.transform.parent = field.transform;

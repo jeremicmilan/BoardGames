@@ -168,6 +168,12 @@ public class Reversi : Game {
 
         isWhitesTurn = !isWhitesTurn;
 
+        gameEnded = false;
+        board.UpdateGameStatusText("");
+
+        if (returnPossibleMoves().Count == 0)
+            isWhitesTurn = !isWhitesTurn;
+
         if (!fake) {
             board.UpdatePlayerStatusText();
             board.ClearMarkers();
@@ -178,12 +184,22 @@ public class Reversi : Game {
     public override void MarkFields(Position start, List<Move> possibleMoves) {
         board.ClearMarkers();
 
+        if (possibleMoves.Count == 0)
+            possibleMoves.AddRange(returnPossibleMoves());
+
         List<Piece> pieces = board.FindAllPieces(PieceType.RV_PAWN);
         foreach (Piece piece in pieces) {
             if (piece.isWhite == isWhitesTurn) {
                 List<Move> moves = piece.PossibleMoves();
                 foreach (Move move in moves) {
-                    board.MakeMarker(move.end, board.markerAttack);
+                    bool set = false;
+
+                    foreach (GameObject marker in board.markers)
+                        if (marker.transform.parent == move.end.field.transform)
+                            set = true;
+
+                    if (!set)
+                        board.MakeMarker(move.end, board.markerAttack);
                 }
             }
         }
