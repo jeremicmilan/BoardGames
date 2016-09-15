@@ -105,8 +105,8 @@ public class Chess : Game {
 
         isWhitesTurn = !isWhitesTurn;
 
-        if (!fake)
-            board.UpdateGameStatusText(isCheck() ? "CHECK!" : "");
+        if (isCheck())
+            board.UpdateGameStatusText("CHECK!");
 
         isWhitesTurn = !isWhitesTurn;
     }
