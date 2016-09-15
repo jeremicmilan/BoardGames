@@ -75,10 +75,9 @@ public class Checkers : Game {
         if (CheckForPieceEvolve(move))
             move.pieceEvolved = true;
 
-
         bool attacked = Attack(move);
 
-        if (!CheckForAttack() || !attacked)
+        if (!CheckForAttack(piece) || !attacked)
             isWhitesTurn = !isWhitesTurn;
 
         board.ClearMarkers();
@@ -87,10 +86,25 @@ public class Checkers : Game {
     }
 
     public override void UndoMove(Move move, bool fake = false) {
+        Piece piece = move.end.field.FindPiece();
+        bool attacked = false;
+
+        if (CheckForAttack(piece))
+            attacked = true;
+        
         base.UndoMove(move);
+
+        isWhitesTurn = !isWhitesTurn;
+
+        if (!attacked || !CheckForAttack(piece))
+            isWhitesTurn = !isWhitesTurn;
 
         if (move.pieceEvolved)
             PieceDevolve(move);
+
+        if (!fake) {
+            board.UpdatePlayerStatusText();
+        }
 
     }
 
@@ -197,6 +211,17 @@ public class Checkers : Game {
         piece.transform.localPosition = new Vector3(0, 0, -1);
         board.ClearMarkers();
 
+    }
+
+    public bool CheckForAttack(Piece piece) {
+        List<Move> possibleMoves = piece.PossibleMoves();
+        foreach (Move move in possibleMoves) {
+            if (move.isAttack) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public bool CheckForAttack() {
