@@ -46,6 +46,7 @@ public class Reversi : Game {
         board.markerSelected = board.markerInvisible;
         MarkFields(new Position(-1, -1, null), returnPossibleMoves());
         board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
     public override void StartTwoPlayer () {
@@ -54,6 +55,7 @@ public class Reversi : Game {
         board.markerSelected = board.markerInvisible;
         MarkFields(new Position(-1, -1, null), returnPossibleMoves());
         board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
     public override bool Attack (Move move, bool destroy = true) {

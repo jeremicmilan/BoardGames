@@ -54,11 +54,13 @@ public class VikingChess : Game {
     public override void StartSinglePlayer () {
         SetBoardAndPieces();
         board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
     public override void StartTwoPlayer () {
         SetBoardAndPieces();
         board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
     private bool Attack (Move move, Position direction, bool destroy = false) {

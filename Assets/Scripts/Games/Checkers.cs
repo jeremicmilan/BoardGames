@@ -44,11 +44,13 @@ public class Checkers : Game {
     public override void StartSinglePlayer () {
         SetBoardAndPieces();
         board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
     public override void StartTwoPlayer () {
         SetBoardAndPieces();
         board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
     public override bool Attack (Move move, bool destroy = true) {

@@ -45,6 +45,7 @@ public class FoxAndHounds : Game {
         isWhitesTurn = true;
         SetFox();
         board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
     public override void StartTwoPlayer() {
@@ -52,6 +53,7 @@ public class FoxAndHounds : Game {
         isWhitesTurn = true;
         SetFox();
         board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
     private void SetFox() {

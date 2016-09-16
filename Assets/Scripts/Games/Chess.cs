@@ -44,6 +44,7 @@ public class Chess : Game {
         SetBoardAndPieces();
         isWhitesTurn = true;
         board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
         playingAgainstAI = true;
     }
 
@@ -51,6 +52,7 @@ public class Chess : Game {
         SetBoardAndPieces();
         isWhitesTurn = true;
         board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
         playingAgainstAI = false;
     }
 
