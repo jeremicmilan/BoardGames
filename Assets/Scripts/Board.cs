@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System;
 
 public enum BoardType { CHECKERED, CUSTOM, UNCHECKERED };
 public enum PieceType { CH_PAWN, CH_KING, CH_KNIG, CH_BISH, CH_ROOK, CH_QUEE,
@@ -59,7 +60,7 @@ public class Board : MonoBehaviour {
     [HideInInspector]
     public Position previousPositionClicked;
     [HideInInspector]
-    public List<Move> previousPossibleMoves;
+    public List<Move> previousPossibleMoves = new List<Move>();
 
     [HideInInspector]
     public Stack<Move> moveHistory = new Stack<Move>();
@@ -132,77 +133,12 @@ public class Board : MonoBehaviour {
     public void SetPieces (PieceType[,] pieceLayout, bool isWhite) {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                GameObject pieceObject = null;
-
-                switch(pieceLayout[i, j]) {
-                    case PieceType.CH_PAWN:
-                        pieceObject = Instantiate(chessPawn);
-                        break;
-                    case PieceType.CH_KING:
-                        pieceObject = Instantiate(chessKing);
-                        break;
-                    case PieceType.CH_KNIG:
-                        pieceObject = Instantiate(chessKnight);
-                        break;
-                    case PieceType.CH_BISH:
-                        pieceObject = Instantiate(chessBishop);
-                        break;
-                    case PieceType.CH_ROOK:
-                        pieceObject = Instantiate(chessRook);
-                        break;
-                    case PieceType.CH_QUEE:
-                        pieceObject = Instantiate(chessQueen);
-                        break;
-
-                    case PieceType.VK_KING:
-                        pieceObject = Instantiate(vikingKing);
-                        break;
-                    case PieceType.VK_ROOK:
-                        pieceObject = Instantiate(vikingRook);
-                        break;
-
-                    case PieceType.CK_PAWN:
-                        pieceObject = Instantiate(checkersPawn);
-                        break;
-                    case PieceType.CK_KING:
-                        pieceObject = Instantiate(checkersKing);
-                        break;
-
-                    case PieceType.RV_PAWN:
-                        pieceObject = Instantiate(reversiPawn);
-                        break;
-
-                    case PieceType.FAH_FOX:
-                        pieceObject = Instantiate(fox);
-                        break;
-                    case PieceType.FAH_HOU:
-                        pieceObject = Instantiate(hound);
-                        break;
-
-                    default:
-                        continue;
-                }
-
-                Piece piece = pieceObject.GetComponent<Piece>();
-
-                piece.transform.parent = board[j, i].transform;
-                piece.transform.localPosition = new Vector3(0, 0, -1);
-                piece.transform.localScale = board[j, i].transform.localScale;
-
-                if (!isWhite) {
-                    pieceObject.transform.GetComponent<Renderer>().material.color = Color.gray;
-                }
-
-                piece.board = this;
-                piece.position = new Position(i, j, GetField(i, j));
-                piece.game = game;
-                piece.isWhite = isWhite;
+                setPiece(pieceLayout[i, j], isWhite, new Position(i, j, GetField(i, j)));
             }
         }
     }
 
-    public void setPiece(PieceType pieceType, Position position)
-    {
+    public void setPiece (PieceType pieceType, bool isWhite, Position position) {
         GameObject pieceObject = null;
         switch (pieceType) {
             case PieceType.CH_PAWN:
@@ -244,20 +180,22 @@ public class Board : MonoBehaviour {
             case PieceType.FAH_FOX:
                 pieceObject = Instantiate(fox);
                 break;
+            default:
+                return;
         }
         Piece piece = pieceObject.GetComponent<Piece>();
         piece.transform.parent = position.field.transform;
         piece.transform.localPosition = new Vector3(0, 0, -1);
         piece.transform.localScale = position.field.transform.localScale;
 
-        if (!game.isWhitesTurn) {
+        if (!isWhite) {
             pieceObject.transform.GetComponent<Renderer>().material.color = Color.gray;
         }
 
         piece.board = this;
         piece.position = position;
         piece.game = game;
-        piece.isWhite = game.isWhitesTurn;
+        piece.isWhite = isWhite;
     }
 
     public Field GetField (int x, int y) {
@@ -326,55 +264,45 @@ public class Board : MonoBehaviour {
     }
 
     public void UpdateGameStatusText (string text) {
-        Text status = GameObject.FindGameObjectWithTag("game status").GetComponent<Text>();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = text;
+    }
 
-        status.text = text;
+    public List<Piece> GetPieces (Predicate<Piece> predicate) {
+        List<Piece> pieces = new List<Piece>();
+
+        foreach (GameObject pieceGameobject in GameObject.FindGameObjectsWithTag("piece")) {
+            Piece piece = pieceGameobject.GetComponent<Piece>();
+            if (piece && predicate(piece)) {
+                pieces.Add(piece);
+            }
+        }
+        return pieces;
+    }
+
+    public List<Piece> GetPieces () {
+        return GetPieces(piece => true);
+    }
+
+    public List<Piece> GetPieces (PieceType pieceType) {
+        return GetPieces(piece => (piece.pieceType == pieceType));
+    }
+
+    public List<Piece> GetPieces (bool isWhite) {
+        return GetPieces(piece => (piece.isWhite == isWhite));
+    }
+
+    public List<Piece> GetPieces (bool isWhite, PieceType pieceType) {
+        return GetPieces(piece => (piece.pieceType == pieceType && piece.isWhite == isWhite));
     }
 
     public Piece FindPiece (PieceType pieceType) {
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                Piece piece = GetField(i, j).FindPiece();
-                if (piece && piece.pieceType == pieceType) {
-                    return piece;
-                }
-            }
-        }
-        return null;
-    }
-
-    public List<Piece> FindAllPieces(PieceType pieceType) {
-        List<Piece> pieces = new List<Piece> ();
-
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                Piece piece = GetField(i, j).FindPiece();
-                if (piece && piece.pieceType == pieceType) {
-                    pieces.Add(piece);
-                }
-            }
-        }
-        return pieces;
-    }
-
-    public List<Piece> FindAllPieces(bool isWhite) {
-        List<Piece> pieces = new List<Piece>();
-
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                Piece piece = GetField(i, j).FindPiece();
-                if (piece && piece.isWhite == isWhite) {
-                    pieces.Add(piece);
-                }
-            }
-        }
-        return pieces;
+        return GetPieces(pieceType)[0];
     }
 
     public List<Move> GetAllMoves(bool isWhite, bool eliminateMoves = true) {
         List<Move> allMoves = new List<Move>();
 
-        foreach (Piece piece in FindAllPieces(isWhite))
+        foreach (Piece piece in GetPieces(isWhite))
             allMoves.AddRange(piece.PossibleMoves(eliminateMoves));
 
         return allMoves;
@@ -383,7 +311,6 @@ public class Board : MonoBehaviour {
     public void Undo (bool fake = false) {
         if (moveHistory.Count > 0) {
             Move move = moveHistory.Pop();
-
             game.UndoMove(move, fake);
         }
     }
@@ -391,6 +318,7 @@ public class Board : MonoBehaviour {
     public void SendToGraveyard (Piece piece) {
         piece.transform.parent = graveyard.transform;
         piece.transform.localPosition = new Vector3(0, 0, -1);
+        piece.gameObject.SetActive(false);
     }
 
 }
