@@ -3,13 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
-using UnityEngine.Assertions;
 
 public class Chess : Game {
     public Chess ()
         : base(GameName.CHESS, "Chess", "", null) { }
 
-    void SetBoardAndPieces() {
+    protected override void SetBoardAndPieces() {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
 
         board = boardObject.GetComponent<Board>();
@@ -40,20 +39,12 @@ public class Chess : Game {
                               true);
     }
 
-    public override void StartSinglePlayer() {
-        SetBoardAndPieces();
+    protected override void GameSpecificStartSinglePlayer () {
         isWhitesTurn = true;
-        board.UpdatePlayerStatusText();
-        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
-        playingAgainstAI = true;
     }
 
-    public override void StartTwoPlayer() {
-        SetBoardAndPieces();
+    protected override void GameSpecificStartTwoPlayer () {
         isWhitesTurn = true;
-        board.UpdatePlayerStatusText();
-        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
-        playingAgainstAI = false;
     }
 
     public override bool Attack(Move move, bool destroy = true) {
@@ -69,34 +60,12 @@ public class Chess : Game {
         return false;
     }
 
-    public override void MakeMove(Move move, bool fake = false) {
-        Piece piece = move.start.field.FindPiece();
-        Assert.IsNotNull(piece);
-
-        Attack(move);
-
-        piece.transform.parent = move.end.field.transform;
-        piece.position = move.end;
-        piece.transform.localPosition = new Vector3(0, 0, -1);
-
-        if (!fake) {
-            board.ClearMarkers();
-            if (CheckForPieceEvolve(move))
-                move.pieceEvolved = true;
-        }
-
-        board.moveHistory.Push(move);
+    public override void GameSpecificPreMakeMove (ref Move move, Piece piece, bool attacked, bool fake) {
+        if (CheckForPieceEvolve(move))
+            move.pieceEvolved = true;
 
         if (!fake)
-            board.UpdateGameStatusText(isCheck() ? "CHECK!" : "");
-
-        isWhitesTurn = !isWhitesTurn;
-
-        if (!fake)
-            board.UpdatePlayerStatusText();
-
-        if (playingAgainstAI && !fake && !isWhitesTurn)
-            MakeMove(getAIMove());
+            board.UpdateGameStatusText(isCheck(isWhitesTurn) ? "CHECK!" : "");
     }
 
     public override void UndoMove (Move move, bool fake = false) {
@@ -105,21 +74,17 @@ public class Chess : Game {
         if (move.pieceEvolved)
             PieceDevolve(move);
 
-        isWhitesTurn = !isWhitesTurn;
-
-        if (isCheck())
+        if (isCheck(!isWhitesTurn))
             board.UpdateGameStatusText("CHECK!");
-
-        isWhitesTurn = !isWhitesTurn;
     }
 
-    public override List<Move> EliminateImpossibleMoves (List<Move> moves) {
+    public override List<Move> EliminateImpossibleMoves (List<Move> moves, bool isWhite) {
         List<Move> possibleMoves = new List<Move>();
 
         foreach (Move move in moves) {
             MakeMove(move, fake : true);
 
-            if (!isCheck()) {
+            if (!isCheck(!isWhite)) {
                 possibleMoves.Add(move);
             }
 
@@ -129,7 +94,7 @@ public class Chess : Game {
         return possibleMoves;
     }
 
-    public bool isCheck () {
+    public bool isCheck (bool isWhitesTurn) {
         foreach (Move move in board.GetAllMoves(isWhitesTurn, eliminateMoves: false)) {
             Piece endPiece = board.GetPiece(move.end);
             if (endPiece && endPiece.pieceType == PieceType.CH_KING) {
@@ -157,23 +122,16 @@ public class Chess : Game {
         return !board.GetField(x, y).FindPiece();
     }
 
-    public override bool CanMakeMove(Move move) {
-        return board.previousPossibleMoves != null && board.previousPossibleMoves.Contains(move);
-    }
-
     public bool CheckForPieceEvolve(Move move) {
-        List<Piece> pieces = board.FindAllPieces(PieceType.CH_PAWN);
+        List<Piece> pieces = board.GetPieces(isWhitesTurn, PieceType.CH_PAWN);
         foreach (Piece piece in pieces) {
-            if (piece.isWhite == isWhitesTurn) {
-                if ((isWhitesTurn && piece.position.y == 0) || (!isWhitesTurn && piece.position.y == board.height - 1)) {
-                    move.eatenPieces.Add(piece);
-                    board.SendToGraveyard(piece);
-                    board.setPiece(PieceType.CH_QUEE, move.end);
-                    return true;
-                }
+            if ((isWhitesTurn && piece.position.y == 0) || (!isWhitesTurn && piece.position.y == board.height - 1)) {
+                move.eatenPieces.Add(piece);
+                board.SendToGraveyard(piece);
+                board.setPiece(PieceType.CH_QUEE, isWhitesTurn, move.end); // TODO: Pick a piece to evolve
+                return true;
             }
         }
-
         return false;
     }
 
@@ -188,27 +146,69 @@ public class Chess : Game {
 
     }
 
-    public override bool CheckForEnd(ref bool? whiteWon) {
+    public override bool CheckForEnd(ref bool? whiteWon, bool isWhitesTurn) {
         if (board.GetAllMoves(isWhitesTurn).Count == 0) {
-            isWhitesTurn = !isWhitesTurn;
-
-            if (isCheck())
+            if (isCheck(!isWhitesTurn))
                 whiteWon = isWhitesTurn;
             else
                 whiteWon = null;
-
-            isWhitesTurn = !isWhitesTurn;
 
             return true;
         }
         return false;
     }
 
-    public override Move getAIMove() {
-        return ai.minimax();
+    private int calculatePawnsPenalty (bool isWhitesTurn) {
+        int penalty = 0;
+        foreach (Piece pawn in board.GetPieces(PieceType.CH_PAWN)) {
+            // Blocked pawns penalty
+            if (pawn.PossibleMoves(eliminateMoves: false).Count == 0) {
+                penalty += pawn.isWhite == isWhitesTurn ? 1 : -1;
+            }
+        }
+        return penalty;
     }
 
-    public override int scoreBoard () {
-        return new System.Random().Next();
+    public override int scoreBoard (bool isWhitesTurn) {
+        List<Move> opponentMoves = board.GetAllMoves(!isWhitesTurn);
+        if (opponentMoves.Count == 0 && isCheck(!isWhitesTurn)) {
+            return int.MinValue / 2;
+        }
+
+        List<Move> moves = board.GetAllMoves(isWhitesTurn);
+        if (moves.Count == 0 && isCheck(isWhitesTurn)) {
+            return int.MaxValue / 2;
+        }
+
+        int materialScore = 0;
+
+        foreach (Piece piece in board.GetPieces()) {
+            int pieceScore = 0;
+
+            switch (piece.pieceType) {
+            case PieceType.CH_PAWN:
+                pieceScore = 1;
+                break;
+            case PieceType.CH_KNIG:
+                pieceScore = 3;
+                break;
+            case PieceType.CH_BISH:
+                pieceScore = 3;
+                break;
+            case PieceType.CH_ROOK:
+                pieceScore = 5;
+                break;
+            case PieceType.CH_QUEE:
+                pieceScore = 9;
+                break;
+            }
+
+            materialScore += piece.isWhite == isWhitesTurn ? pieceScore : -pieceScore;
+        }
+
+        int movementScore = moves.Count - opponentMoves.Count;
+        int pawnsPenalty = calculatePawnsPenalty(isWhitesTurn);
+
+        return 100 * materialScore + 10 * movementScore - 50 * pawnsPenalty;
     }
 }
