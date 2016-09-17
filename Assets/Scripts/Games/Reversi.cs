@@ -11,7 +11,7 @@ public class Reversi : Game {
     public Reversi ()
         : base(GameName.REVERSI, "Reversi", "", null) { }
 
-    void SetBoardAndPieces () {
+    protected override void SetBoardAndPieces () {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
 
         board = boardObject.GetComponent<Board>();
@@ -40,22 +40,19 @@ public class Reversi : Game {
                                            { PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE, PieceType.AL_NONE }},
                               true);
     }
-    public override void StartSinglePlayer () {
-        SetBoardAndPieces();
+
+    protected override void GameSpecificStartSinglePlayer () {
+        isWhitesTurn = false;
         board.markerPossible = board.markerInvisible;
         board.markerSelected = board.markerInvisible;
         MarkFields(new Position(-1, -1, null), returnPossibleMoves());
-        board.UpdatePlayerStatusText();
-        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
-    public override void StartTwoPlayer () {
-        SetBoardAndPieces();
+    protected override void GameSpecificStartTwoPlayer () {
+        isWhitesTurn = false;
         board.markerPossible = board.markerInvisible;
         board.markerSelected = board.markerInvisible;
         MarkFields(new Position(-1, -1, null), returnPossibleMoves());
-        board.UpdatePlayerStatusText();
-        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
     public override bool Attack (Move move, bool destroy = true) {
@@ -78,7 +75,7 @@ public class Reversi : Game {
 
         if (piece.isWhite == isWhitesTurn && isAttack) {
             foreach (Piece p in toChange) {
-                board.setPiece(PieceType.RV_PAWN, p.position);
+                board.setPiece(PieceType.RV_PAWN, isWhitesTurn, p.position);
                 board.SendToGraveyard(p);
             }
         }
@@ -115,7 +112,7 @@ public class Reversi : Game {
     }
 
     public List<Move> returnPossibleMoves () {
-        List<Piece> pieces = board.FindAllPieces(PieceType.RV_PAWN);
+        List<Piece> pieces = board.GetPieces(PieceType.RV_PAWN);
         List<Move> possibleMoves = new List<Move> ();
 
         foreach(Piece piece in pieces)
@@ -143,9 +140,8 @@ public class Reversi : Game {
     }
 
     public override void MakeMove(Move move, bool fake = false) {
-
         ChangeColor(move);
-        board.setPiece(PieceType.RV_PAWN, move.end);
+        board.setPiece(PieceType.RV_PAWN, isWhitesTurn, move.end);
 
         isWhitesTurn = !isWhitesTurn;
 
@@ -189,7 +185,7 @@ public class Reversi : Game {
         if (possibleMoves.Count == 0)
             possibleMoves.AddRange(returnPossibleMoves());
 
-        List<Piece> pieces = board.FindAllPieces(PieceType.RV_PAWN);
+        List<Piece> pieces = board.GetPieces(PieceType.RV_PAWN);
         foreach (Piece piece in pieces) {
             if (piece.isWhite == isWhitesTurn) {
                 List<Move> moves = piece.PossibleMoves();
@@ -220,10 +216,10 @@ public class Reversi : Game {
         return result;
     }
 
-    public override bool CheckForEnd (ref bool? whiteWon) {
+    public override bool CheckForEnd (ref bool? whiteWon, bool isWhitesTurn) {
         int white = 0;
         int black = 0;
-        List<Piece> pieces = board.FindAllPieces(PieceType.RV_PAWN);
+        List<Piece> pieces = board.GetPieces(PieceType.RV_PAWN);
         if (pieces.Count == 64 || NoMoreMoves()) {
             foreach (Piece piece in pieces) {
                 if (piece.isWhite)
@@ -245,11 +241,7 @@ public class Reversi : Game {
         return false;
     }
 
-    public override Move getAIMove () {
-        throw new NotImplementedException();
-    }
-
-    public override int scoreBoard () {
-        throw new NotImplementedException();
+    public override int scoreBoard (bool isWhitesTurn) {
+        return new System.Random().Next();
     }
 }

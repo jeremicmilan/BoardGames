@@ -8,7 +8,7 @@ public class FoxAndHounds : Game {
     public FoxAndHounds()
         : base(GameName.FOX_AND_HOUNDS, "Fox And Hounds", "", null) { }
 
-    void SetBoardAndPieces() {
+    protected override void SetBoardAndPieces () {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
 
         board = boardObject.GetComponent<Board>();
@@ -40,20 +40,14 @@ public class FoxAndHounds : Game {
 
     }
 
-    public override void StartSinglePlayer() {
-        SetBoardAndPieces();
+    protected override void GameSpecificStartSinglePlayer () {
         isWhitesTurn = true;
         SetFox();
-        board.UpdatePlayerStatusText();
-        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
-    public override void StartTwoPlayer() {
-        SetBoardAndPieces();
+    protected override void GameSpecificStartTwoPlayer () {
         isWhitesTurn = true;
         SetFox();
-        board.UpdatePlayerStatusText();
-        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
     }
 
     private void SetFox() {
@@ -61,27 +55,12 @@ public class FoxAndHounds : Game {
         int n = r.Next(0, 3);
 
         Field field = board.GetField(n*2 + 1, 0);
-        board.setPiece(PieceType.FAH_FOX, field.position);
+        board.setPiece(PieceType.FAH_FOX, isWhitesTurn, field.position);
     }
 
     public override bool Attack(Move move, bool destroy = true) {
         return false;
     }
-
-    public override void MakeMove(Move move, bool fake = false) {
-        Piece piece = move.start.field.FindPiece();
-
-        piece.transform.parent = move.end.field.transform;
-        piece.position = move.end;
-        piece.transform.localPosition = new Vector3(0, 0, -1);
-
-        isWhitesTurn = !isWhitesTurn;
-
-        board.ClearMarkers();
-        board.moveHistory.Push(move);
-        board.UpdatePlayerStatusText();
-    }
-
 
     public override void MarkFields(Position start, List<Move> possibleMoves) {
         board.ClearMarkers();
@@ -90,11 +69,6 @@ public class FoxAndHounds : Game {
         foreach (Move move in possibleMoves) {
                 board.MakeMarker(move.end, board.markerPossible);
         }
-
-    }
-
-    public override bool CanMakeMove(Move move) {
-        return board.previousPossibleMoves != null && board.previousPossibleMoves.Contains(move);
     }
 
     public override bool CanMoveTo(int x, int y, PieceType pieceType = PieceType.AL_NONE) {
@@ -104,7 +78,7 @@ public class FoxAndHounds : Game {
         return !piece;
     }
 
-    public override bool CheckForEnd(ref bool? whiteWon) {
+    public override bool CheckForEnd(ref bool? whiteWon, bool isWhitesTurn) {
         Piece fox = board.FindPiece(PieceType.FAH_FOX);
 
         if(isWhitesTurn && fox.PossibleMoves().Count == 0) {
@@ -120,12 +94,8 @@ public class FoxAndHounds : Game {
         return false;
     }
 
-    public override Move getAIMove() {
-        throw new NotImplementedException();
-    }
-
-    public override int scoreBoard () {
-        throw new NotImplementedException();
+    public override int scoreBoard (bool isWhitesTurn) {
+        return new System.Random().Next();
     }
 }
 

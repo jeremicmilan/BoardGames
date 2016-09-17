@@ -9,7 +9,7 @@ public class Checkers : Game {
     public Checkers ()
         : base(GameName.CHECKERS, "Checkers", "", null) { }
 
-    void SetBoardAndPieces () {
+    protected override void SetBoardAndPieces () {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
 
         board = boardObject.GetComponent<Board>();
@@ -41,16 +41,12 @@ public class Checkers : Game {
 
     }
 
-    public override void StartSinglePlayer () {
-        SetBoardAndPieces();
-        board.UpdatePlayerStatusText();
-        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
+    protected override void GameSpecificStartSinglePlayer () {
+        isWhitesTurn = false;
     }
 
-    public override void StartTwoPlayer () {
-        SetBoardAndPieces();
-        board.UpdatePlayerStatusText();
-        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
+    protected override void GameSpecificStartTwoPlayer () {
+        isWhitesTurn = false;
     }
 
     public override bool Attack (Move move, bool destroy = true) {
@@ -62,29 +58,15 @@ public class Checkers : Game {
             }
             return true;
         }
-
-
         return false;
     }
 
-    public override void MakeMove(Move move, bool fake = false) {
-        Piece piece = move.start.field.FindPiece();
-
-        piece.transform.parent = move.end.field.transform;
-        piece.position = move.end;
-        piece.transform.localPosition = new Vector3(0, 0, -1);
-
+    public override void GameSpecificPreMakeMove (ref Move move, Piece piece, bool attacked, bool fake) {
         if (CheckForPieceEvolve(move))
             move.pieceEvolved = true;
 
-        bool attacked = Attack(move);
-
-        if (!CheckForAttack(piece) || !attacked)
+        if (CheckForAttack(piece) && attacked)
             isWhitesTurn = !isWhitesTurn;
-
-        board.ClearMarkers();
-        board.moveHistory.Push(move);
-        board.UpdatePlayerStatusText();
     }
 
     public override void UndoMove(Move move, bool fake = false) {
@@ -93,7 +75,7 @@ public class Checkers : Game {
 
         if (CheckForAttack(piece))
             attacked = true;
-        
+
         base.UndoMove(move);
 
         isWhitesTurn = !isWhitesTurn;
@@ -130,10 +112,6 @@ public class Checkers : Game {
         possibleMoves.RemoveAll(x => toRemove.Contains(x));
     }
 
-    public override bool CanMakeMove(Move move) {
-        return board.previousPossibleMoves != null && board.previousPossibleMoves.Contains(move);
-    }
-
     public override bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
         Field field = board.GetField(x, y);
         Piece piece = field.FindPiece();
@@ -141,14 +119,14 @@ public class Checkers : Game {
         return !piece;
     }
 
-    public override bool CheckForEnd (ref bool? whiteWon) {
+    public override bool CheckForEnd (ref bool? whiteWon, bool isWhitesTurn) {
         int white = 0;
         int black = 0;
 
         bool whiteCanMove = false;
         bool blackCanMove = false;
 
-        List<Piece> pieces = board.FindAllPieces(PieceType.CK_PAWN);
+        List<Piece> pieces = board.GetPieces(PieceType.CK_PAWN);
         foreach(Piece piece in pieces)
         {
             if (piece.isWhite) {
@@ -162,7 +140,7 @@ public class Checkers : Game {
             }
         }
 
-        pieces = board.FindAllPieces(PieceType.CK_KING);
+        pieces = board.GetPieces(PieceType.CK_KING);
         foreach (Piece piece in pieces) {
             if (piece.isWhite) {
                 white++;
@@ -185,22 +163,20 @@ public class Checkers : Game {
         }
 
         return false;
-
     }
 
     public bool CheckForPieceEvolve (Move move) {
-        List<Piece> pieces = board.FindAllPieces(PieceType.CK_PAWN);
+        List<Piece> pieces = board.GetPieces(PieceType.CK_PAWN);
         foreach (Piece piece in pieces) {
             if (piece.isWhite == isWhitesTurn) {
                 if ((isWhitesTurn && piece.position.y == 0) || (!isWhitesTurn && piece.position.y == board.height - 1)) {
                     move.eatenPieces.Add(piece);
                     board.SendToGraveyard(piece);
-                    board.setPiece(PieceType.CK_KING, move.end);
+                    board.setPiece(PieceType.CK_KING, isWhitesTurn, move.end);
                     return true;
                 }
             }
         }
-
         return false;
     }
 
@@ -222,13 +198,11 @@ public class Checkers : Game {
                 return true;
             }
         }
-
         return false;
     }
 
     public bool CheckForAttack() {
-
-        List<Piece> pieces = board.FindAllPieces(PieceType.CK_PAWN);
+        List<Piece> pieces = board.GetPieces(PieceType.CK_PAWN);
         foreach(Piece piece in pieces) {
             if (piece.isWhite == isWhitesTurn) {
                 List<Move> possibleMoves = piece.PossibleMoves();
@@ -240,7 +214,7 @@ public class Checkers : Game {
             }
         }
 
-        pieces = board.FindAllPieces(PieceType.CK_KING);
+        pieces = board.GetPieces(PieceType.CK_KING);
         foreach (Piece piece in pieces) {
             if (piece.isWhite == isWhitesTurn) {
                 List<Move> possibleMoves = piece.PossibleMoves();
@@ -256,11 +230,7 @@ public class Checkers : Game {
         return false;
     }
 
-    public override Move getAIMove () {
-        throw new NotImplementedException();
-    }
-
-    public override int scoreBoard () {
-        throw new NotImplementedException();
+    public override int scoreBoard (bool isWhitesTurn) {
+        return new System.Random().Next();
     }
 }

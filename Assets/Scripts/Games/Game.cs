@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using UnityEngine.Assertions;
 
 public abstract class Game {
 
@@ -10,7 +11,7 @@ public abstract class Game {
     public string description;
     public GameObject picture;
     public AI ai;
-    public bool playingAgainstAI = false;
+    public bool playingAgainstAI;
 
     public Board board;
 
@@ -25,12 +26,63 @@ public abstract class Game {
         ai = new AI(this);
     }
 
-    public abstract void StartSinglePlayer ();
-    public abstract void StartTwoPlayer ();
+    protected abstract void SetBoardAndPieces ();
+    protected virtual void GameSpecificStartSinglePlayer () { }
+    protected virtual void GameSpecificStartTwoPlayer () { }
+
+    private void StartGame () {
+        SetBoardAndPieces();
+        board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
+    }
+
+    public void StartSinglePlayer () {
+        StartGame();
+        playingAgainstAI = true;
+        GameSpecificStartSinglePlayer();
+    }
+
+    public void StartTwoPlayer () {
+        StartGame();
+        playingAgainstAI = false;
+        GameSpecificStartTwoPlayer();
+    }
 
     public abstract bool Attack (Move move, bool destroy = true);
-    public abstract void MarkFields(Position start, List<Move> possibleMoves);
-    public abstract void MakeMove(Move move, bool fake = false);
+    public abstract void MarkFields (Position start, List<Move> possibleMoves);
+
+    public virtual void GameSpecificPreMakeMove (ref Move move, Piece piece, bool attacked, bool fake) { }
+    public virtual void GameSpecificPostMakeMove (ref Move move, Piece piece, bool attacked, bool fake) { }
+
+    public virtual void MakeMove (Move move, bool fake = false) {
+        Assert.IsNotNull(move);
+        Piece piece = move.start.field.FindPiece();
+        Assert.IsNotNull(piece);
+
+        bool attacked = Attack(move);
+
+        piece.transform.parent = move.end.field.transform;
+        piece.position = move.end;
+        piece.transform.localPosition = new Vector3(0, 0, -1);
+
+        GameSpecificPreMakeMove(ref move, piece, attacked, fake);
+
+        board.moveHistory.Push(move);
+        isWhitesTurn = !isWhitesTurn;
+
+        GameSpecificPostMakeMove(ref move, piece, attacked, fake);
+
+        if (!fake) {
+            board.UpdatePlayerStatusText();
+            board.ClearMarkers();
+        }
+
+        board.previousPossibleMoves.Clear();
+
+        if (playingAgainstAI && !fake && !isWhitesTurn) { // TODO: isWhitesTurn -> isAIsTurn, pick color for single player
+            MakeMove(getAIMove());
+        }
+    }
 
     public virtual void UndoMove(Move move, bool fake = false) {
         Piece piece = move.end.field.FindPiece();
@@ -51,27 +103,42 @@ public abstract class Game {
         foreach (Piece p in move.eatenPieces) {
             p.transform.parent = p.position.field.transform;
             p.transform.localPosition = new Vector3(0, 0, -1);
+            p.gameObject.SetActive(true);
         }
 
         if (!fake) {
             board.UpdatePlayerStatusText();
         }
+
+        if (playingAgainstAI && !fake && !isWhitesTurn) { // TODO: isWhitesTurn -> isAIsTurn, pick color for single player
+            board.Undo();
+        }
     }
 
-    public virtual List<Move> EliminateImpossibleMoves (List<Move> moves) {
+    public virtual List<Move> EliminateImpossibleMoves (List<Move> moves, bool isWhite) {
         return moves;
     }
 
     public abstract bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE);
-    public abstract bool CanMakeMove(Move move);
 
     public bool CanMoveTo (Position position, PieceType pieceType = PieceType.AL_NONE) {
         return CanMoveTo(position.x, position.y, pieceType);
     }
 
-    public abstract bool CheckForEnd (ref bool? whiteWon);
+    public virtual bool CanMakeMove (Move move) {
+        return board.previousPossibleMoves != null && board.previousPossibleMoves.Contains(move);
+    }
 
-    public abstract Move getAIMove ();
-    public abstract int scoreBoard ();
+    public abstract bool CheckForEnd (ref bool? whiteWon, bool isWhitesTurn);
+
+    public bool CheckForEnd (ref bool? whiteWon) {
+        return CheckForEnd(ref whiteWon, isWhitesTurn);
+    }
+
+    public Move getAIMove () {
+        return ai.minimax();
+    }
+
+    public abstract int scoreBoard (bool isWhitesTurn);
 
 }

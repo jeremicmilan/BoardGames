@@ -10,7 +10,7 @@ public class VikingChess : Game {
     public VikingChess ()
         : base(GameName.VIKING_CHESS, "Viking Chess", "", null) { }
 
-    void SetBoardAndPieces () {
+    protected override void SetBoardAndPieces () {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
 
         board = boardObject.GetComponent<Board>();
@@ -51,16 +51,12 @@ public class VikingChess : Game {
                         true);
     }
 
-    public override void StartSinglePlayer () {
-        SetBoardAndPieces();
-        board.UpdatePlayerStatusText();
-        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
+    protected override void GameSpecificStartSinglePlayer () {
+        isWhitesTurn = false;
     }
 
-    public override void StartTwoPlayer () {
-        SetBoardAndPieces();
-        board.UpdatePlayerStatusText();
-        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
+    protected override void GameSpecificStartTwoPlayer () {
+        isWhitesTurn = false;
     }
 
     private bool Attack (Move move, Position direction, bool destroy = false) {
@@ -109,22 +105,6 @@ public class VikingChess : Game {
         return attacked;
     }
 
-    public override void MakeMove(Move move, bool fake = false) {
-        Piece piece = move.start.field.FindPiece();
-
-        piece.transform.parent = move.end.field.transform;
-        piece.position = move.end;
-        piece.transform.localPosition = new Vector3(0, 0, -1);
-
-        Attack(move);
-
-        isWhitesTurn = !isWhitesTurn;
-
-        board.ClearMarkers();
-        board.moveHistory.Push(move);
-        board.UpdatePlayerStatusText();
-    }
-
     public override void MarkFields(Position start, List<Move> possibleMoves) {
         board.ClearMarkers();
 
@@ -137,10 +117,6 @@ public class VikingChess : Game {
                 board.MakeMarker(move.end, board.markerPossible);
             }
         }
-    }
-
-    public override bool CanMakeMove(Move move) {
-        return board.previousPossibleMoves != null && board.previousPossibleMoves.Contains(move);
     }
 
     public override bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
@@ -203,7 +179,7 @@ public class VikingChess : Game {
         return IsSurrounded(board.FindPiece(PieceType.VK_KING).position);
     }
 
-    public override bool CheckForEnd (ref bool? whiteWon) {
+    public override bool CheckForEnd (ref bool? whiteWon, bool isWhitesTurn) {
         if (DidKingEscape()) {
             whiteWon = true;
             return true;
@@ -215,11 +191,7 @@ public class VikingChess : Game {
         return false;
     }
 
-    public override Move getAIMove () {
-        throw new NotImplementedException();
-    }
-
-    public override int scoreBoard () {
+    public override int scoreBoard (bool isWhitesTurn) {
         return new System.Random().Next();
     }
 }
