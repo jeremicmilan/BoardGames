@@ -495,7 +495,7 @@ public class Piece : MonoBehaviour {
         possibleMoves.AddRange(GetFoxMoves(new Position(-1, -1, null)));
         possibleMoves.AddRange(GetFoxMoves(new Position(1, 1, null)));
         possibleMoves.AddRange(GetFoxMoves(new Position(-1, 1, null)));
-        
+
         return possibleMoves;
     }
 
@@ -542,53 +542,48 @@ public class Piece : MonoBehaviour {
         return possibleMoves;
     }
 
-
-
-
     public List<Move> PossibleMoves (bool eliminateMoves = true) {
         List<Move> possibleMoves = new List<Move>();
 
-        if (game.isWhitesTurn == isWhite) {
-            if (orthoMovement) {
-                possibleMoves.AddRange(GetOrthoMoves());
-            }
-            if (singleOrthoMovement) {
-                possibleMoves.AddRange(GetChessDiagonalMoves());
-            }
-            if (chessOrthoMovement) {
-                possibleMoves.AddRange(GetChessOrthoMoves());
-            }
-            if (chessDiagonalMovement) {
-                possibleMoves.AddRange(GetChessDiagonalMoves());
-            }
-            if (knightMovement) {
-                possibleMoves.AddRange(GetKnightMoves());
-            }
-            if (pawnChessMovement) {
-                possibleMoves.AddRange(GetPawnChessMoves());
-            }
-            if (kingChessMovement) {
-                possibleMoves.AddRange(GetKingChessMoves());
-            }
-            if (pawnCheckersMovement) {
-                possibleMoves.AddRange(GetPawnCheckersMoves());
-            }
-            if (kingCheckersMovement) {
-                possibleMoves.AddRange(GetKingCheckersMoves());
-            }
-            if (foxMovement) {
-                possibleMoves.AddRange(GetFoxMoves());
-            }
-            if (houndMovement) {
-                possibleMoves.AddRange(GetHoundMoves());
-            }
-            if (pawnReversiMovement) {
-                possibleMoves.AddRange(((Reversi)game).returnPossibleMoves());
-            }
+        if (orthoMovement) {
+            possibleMoves.AddRange(GetOrthoMoves());
+        }
+        if (singleOrthoMovement) {
+            possibleMoves.AddRange(GetChessDiagonalMoves());
+        }
+        if (chessOrthoMovement) {
+            possibleMoves.AddRange(GetChessOrthoMoves());
+        }
+        if (chessDiagonalMovement) {
+            possibleMoves.AddRange(GetChessDiagonalMoves());
+        }
+        if (knightMovement) {
+            possibleMoves.AddRange(GetKnightMoves());
+        }
+        if (pawnChessMovement) {
+            possibleMoves.AddRange(GetPawnChessMoves());
+        }
+        if (kingChessMovement) {
+            possibleMoves.AddRange(GetKingChessMoves());
+        }
+        if (pawnCheckersMovement) {
+            possibleMoves.AddRange(GetPawnCheckersMoves());
+        }
+        if (kingCheckersMovement) {
+            possibleMoves.AddRange(GetKingCheckersMoves());
+        }
+        if (foxMovement) {
+            possibleMoves.AddRange(GetFoxMoves());
+        }
+        if (houndMovement) {
+            possibleMoves.AddRange(GetHoundMoves());
+        }
+        if (pawnReversiMovement) {
+            possibleMoves.AddRange(((Reversi)game).returnPossibleMoves());
         }
 
         if (eliminateMoves)
-            return game.EliminateImpossibleMoves(possibleMoves);
+            return game.EliminateImpossibleMoves(possibleMoves, isWhite);
         else
             return possibleMoves;
     }
