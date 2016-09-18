@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
 using System.Collections;
-using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class FoxAndHounds : Game {
@@ -81,7 +82,7 @@ public class FoxAndHounds : Game {
     public override bool CheckForEnd(ref bool? whiteWon, bool isWhitesTurn) {
         Piece fox = board.FindPiece(PieceType.FAH_FOX);
 
-        if(isWhitesTurn && fox.PossibleMoves().Count == 0) {
+        if(isWhitesTurn && !fox.PossibleMoves(isWhitesTurn).Any()) {
             whiteWon = false;
             return true;
         }
@@ -92,10 +93,6 @@ public class FoxAndHounds : Game {
         }
 
         return false;
-    }
-
-    public override int scoreBoard (bool isWhitesTurn) {
-        return new System.Random().Next();
     }
 }
 

@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class VikingChess : Game {
@@ -189,9 +190,5 @@ public class VikingChess : Game {
             return true;
         }
         return false;
-    }
-
-    public override int scoreBoard (bool isWhitesTurn) {
-        return new System.Random().Next();
     }
 }

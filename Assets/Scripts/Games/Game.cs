@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Assertions;
 
@@ -30,22 +32,20 @@ public abstract class Game {
     protected virtual void GameSpecificStartSinglePlayer () { }
     protected virtual void GameSpecificStartTwoPlayer () { }
 
-    private void StartGame () {
+    public void StartSinglePlayer () {
         SetBoardAndPieces();
+        GameSpecificStartSinglePlayer();
         board.UpdatePlayerStatusText();
         GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
-    }
-
-    public void StartSinglePlayer () {
-        StartGame();
         playingAgainstAI = true;
-        GameSpecificStartSinglePlayer();
     }
 
     public void StartTwoPlayer () {
-        StartGame();
-        playingAgainstAI = false;
+        SetBoardAndPieces();
         GameSpecificStartTwoPlayer();
+        board.UpdatePlayerStatusText();
+        GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = "";
+        playingAgainstAI = false;
     }
 
     public abstract bool Attack (Move move, bool destroy = true);
@@ -115,8 +115,8 @@ public abstract class Game {
         }
     }
 
-    public virtual List<Move> EliminateImpossibleMoves (List<Move> moves, bool isWhite) {
-        return moves;
+    public virtual bool isMovePossible (Move move, bool isWhite) {
+        return true;
     }
 
     public abstract bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE);
@@ -139,6 +139,17 @@ public abstract class Game {
         return ai.minimax();
     }
 
-    public abstract int scoreBoard (bool isWhitesTurn);
+    protected int materialScore () {
+        int materialScore = 0;
+
+        foreach (Piece piece in board.GetPieces()) {
+            materialScore += piece.isWhite == isWhitesTurn ? piece.score : -piece.score;
+        }
+        return materialScore;
+    }
+
+    public virtual int scoreBoard (bool isWhitesTurn) {
+        return 100 * materialScore();
+    }
 
 }

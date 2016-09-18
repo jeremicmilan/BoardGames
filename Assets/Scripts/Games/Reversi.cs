@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,14 +47,14 @@ public class Reversi : Game {
         isWhitesTurn = false;
         board.markerPossible = board.markerInvisible;
         board.markerSelected = board.markerInvisible;
-        MarkFields(new Position(-1, -1, null), returnPossibleMoves());
+        MarkFields(new Position(-1, -1, null), returnPossibleMoves().ToList());
     }
 
     protected override void GameSpecificStartTwoPlayer () {
         isWhitesTurn = false;
         board.markerPossible = board.markerInvisible;
         board.markerSelected = board.markerInvisible;
-        MarkFields(new Position(-1, -1, null), returnPossibleMoves());
+        MarkFields(new Position(-1, -1, null), returnPossibleMoves().ToList());
     }
 
     public override bool Attack (Move move, bool destroy = true) {
@@ -111,24 +113,17 @@ public class Reversi : Game {
         move.eatenPieces.AddRange(toChange);
     }
 
-    public List<Move> returnPossibleMoves () {
-        List<Piece> pieces = board.GetPieces(PieceType.RV_PAWN);
-        List<Move> possibleMoves = new List<Move> ();
-
-        foreach(Piece piece in pieces)
-            if(piece.isWhite == isWhitesTurn)
-                possibleMoves.AddRange(piece.GetPawnReversiMoves());
-
-
-        return possibleMoves;
+    public IEnumerable<Move> returnPossibleMoves () {
+        foreach (Piece piece in board.GetPieces(PieceType.RV_PAWN))
+            if (piece.isWhite == isWhitesTurn)
+                foreach (Move move in piece.GetPawnReversiMoves())
+                    yield return move;
     }
 
     public override bool CanMakeMove(Move move) {
-        List<Move> possibleMoves = returnPossibleMoves();
-            foreach (Move m in possibleMoves)
-                if (m.end == move.end)
-                    return true;
-
+        foreach (Move m in returnPossibleMoves())
+            if (m.end == move.end)
+                return true;
         return false;
     }
 
@@ -145,14 +140,14 @@ public class Reversi : Game {
 
         isWhitesTurn = !isWhitesTurn;
 
-        if (returnPossibleMoves().Count == 0)
+        if (!returnPossibleMoves().Any())
             isWhitesTurn = !isWhitesTurn;
 
         board.ClearMarkers();
         board.moveHistory.Push(move);
         board.UpdatePlayerStatusText();
 
-        MarkFields(new Position(-1,-1,null), returnPossibleMoves());
+        MarkFields(new Position(-1,-1,null), returnPossibleMoves().ToList());
     }
 
     public override void UndoMove(Move move, bool fake = false) {
@@ -169,13 +164,13 @@ public class Reversi : Game {
         gameEnded = false;
         board.UpdateGameStatusText("");
 
-        if (returnPossibleMoves().Count == 0)
+        if (!returnPossibleMoves().Any())
             isWhitesTurn = !isWhitesTurn;
 
         if (!fake) {
             board.UpdatePlayerStatusText();
             board.ClearMarkers();
-            MarkFields(new Position(-1, -1, null), returnPossibleMoves());
+            MarkFields(new Position(-1, -1, null), returnPossibleMoves().ToList());
         }
     }
 
@@ -185,11 +180,9 @@ public class Reversi : Game {
         if (possibleMoves.Count == 0)
             possibleMoves.AddRange(returnPossibleMoves());
 
-        List<Piece> pieces = board.GetPieces(PieceType.RV_PAWN);
-        foreach (Piece piece in pieces) {
+        foreach (Piece piece in board.GetPieces(PieceType.RV_PAWN)) {
             if (piece.isWhite == isWhitesTurn) {
-                List<Move> moves = piece.PossibleMoves();
-                foreach (Move move in moves) {
+                foreach (Move move in piece.PossibleMoves(isWhitesTurn)) {
                     bool set = false;
 
                     foreach (GameObject marker in board.markers)
@@ -201,14 +194,13 @@ public class Reversi : Game {
                 }
             }
         }
-
     }
 
     public bool NoMoreMoves() {
         bool result = false;
-        if (returnPossibleMoves().Count == 0) {
+        if (!returnPossibleMoves().Any()) {
             isWhitesTurn = !isWhitesTurn;
-            if (returnPossibleMoves().Count == 0)
+            if (!returnPossibleMoves().Any())
                 result = true;
             isWhitesTurn = !isWhitesTurn;
         }
@@ -219,7 +211,7 @@ public class Reversi : Game {
     public override bool CheckForEnd (ref bool? whiteWon, bool isWhitesTurn) {
         int white = 0;
         int black = 0;
-        List<Piece> pieces = board.GetPieces(PieceType.RV_PAWN);
+        List<Piece> pieces = board.GetPieces(PieceType.RV_PAWN).ToList();
         if (pieces.Count == 64 || NoMoreMoves()) {
             foreach (Piece piece in pieces) {
                 if (piece.isWhite)
@@ -239,9 +231,5 @@ public class Reversi : Game {
         }
 
         return false;
-    }
-
-    public override int scoreBoard (bool isWhitesTurn) {
-        return new System.Random().Next();
     }
 }

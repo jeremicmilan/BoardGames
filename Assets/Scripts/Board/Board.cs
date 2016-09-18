@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 public enum BoardType { CHECKERED, CUSTOM, UNCHECKERED };
 public enum PieceType { CH_PAWN, CH_KING, CH_KNIG, CH_BISH, CH_ROOK, CH_QUEE,
@@ -207,8 +208,7 @@ public class Board : MonoBehaviour {
     }
 
     public Piece GetPiece (int x, int y) {
-        return
-            board[y, x].FindPiece();
+        return board[y, x].FindPiece();
     }
 
     public Piece GetPiece (Position position) {
@@ -267,45 +267,39 @@ public class Board : MonoBehaviour {
         GameObject.FindGameObjectWithTag("game status").GetComponent<Text>().text = text;
     }
 
-    public List<Piece> GetPieces (Predicate<Piece> predicate) {
-        List<Piece> pieces = new List<Piece>();
-
+    public IEnumerable<Piece> GetPieces (Predicate<Piece> predicate) {
         foreach (GameObject pieceGameobject in GameObject.FindGameObjectsWithTag("piece")) {
             Piece piece = pieceGameobject.GetComponent<Piece>();
             if (piece && predicate(piece)) {
-                pieces.Add(piece);
+                yield return piece;
             }
         }
-        return pieces;
     }
 
-    public List<Piece> GetPieces () {
+    public IEnumerable<Piece> GetPieces () {
         return GetPieces(piece => true);
     }
 
-    public List<Piece> GetPieces (PieceType pieceType) {
+    public IEnumerable<Piece> GetPieces (PieceType pieceType) {
         return GetPieces(piece => (piece.pieceType == pieceType));
     }
 
-    public List<Piece> GetPieces (bool isWhite) {
+    public IEnumerable<Piece> GetPieces (bool isWhite) {
         return GetPieces(piece => (piece.isWhite == isWhite));
     }
 
-    public List<Piece> GetPieces (bool isWhite, PieceType pieceType) {
+    public IEnumerable<Piece> GetPieces (bool isWhite, PieceType pieceType) {
         return GetPieces(piece => (piece.pieceType == pieceType && piece.isWhite == isWhite));
     }
 
     public Piece FindPiece (PieceType pieceType) {
-        return GetPieces(pieceType)[0];
+        return GetPieces(pieceType).First();
     }
 
-    public List<Move> GetAllMoves(bool isWhite, bool eliminateMoves = true) {
-        List<Move> allMoves = new List<Move>();
-
-        foreach (Piece piece in GetPieces(isWhite))
-            allMoves.AddRange(piece.PossibleMoves(eliminateMoves));
-
-        return allMoves;
+    public IEnumerable<Move> GetAllMoves(bool isWhitesTurn, bool eliminateMoves = true) {
+        foreach (Piece piece in GetPieces(isWhitesTurn))
+            foreach (Move move in piece.PossibleMoves(isWhitesTurn, eliminateMoves))
+                yield return move;
     }
 
     public void Undo (bool fake = false) {

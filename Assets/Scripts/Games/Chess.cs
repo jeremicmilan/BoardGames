@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Chess : Game {
@@ -61,7 +62,7 @@ public class Chess : Game {
     }
 
     public override void GameSpecificPreMakeMove (ref Move move, Piece piece, bool attacked, bool fake) {
-        if (CheckForPieceEvolve(move))
+        if (!fake && CheckForPieceEvolve(move))
             move.pieceEvolved = true;
 
         if (!fake)
@@ -78,20 +79,16 @@ public class Chess : Game {
             board.UpdateGameStatusText("CHECK!");
     }
 
-    public override List<Move> EliminateImpossibleMoves (List<Move> moves, bool isWhite) {
-        List<Move> possibleMoves = new List<Move>();
+    public override bool isMovePossible (Move move, bool isWhitesTurn) {
+        MakeMove(move, fake : true);
 
-        foreach (Move move in moves) {
-            MakeMove(move, fake : true);
+        bool isPossible = false;
+        if (!isCheck(!isWhitesTurn))
+            isPossible = true;
 
-            if (!isCheck(!isWhite)) {
-                possibleMoves.Add(move);
-            }
+        board.Undo(fake : true);
 
-            board.Undo(fake : true);
-        }
-
-        return possibleMoves;
+        return isPossible;
     }
 
     public bool isCheck (bool isWhitesTurn) {
@@ -123,8 +120,7 @@ public class Chess : Game {
     }
 
     public bool CheckForPieceEvolve(Move move) {
-        List<Piece> pieces = board.GetPieces(isWhitesTurn, PieceType.CH_PAWN);
-        foreach (Piece piece in pieces) {
+        foreach (Piece piece in board.GetPieces(isWhitesTurn, PieceType.CH_PAWN)) {
             if ((isWhitesTurn && piece.position.y == 0) || (!isWhitesTurn && piece.position.y == board.height - 1)) {
                 move.eatenPieces.Add(piece);
                 board.SendToGraveyard(piece);
@@ -147,9 +143,9 @@ public class Chess : Game {
     }
 
     public override bool CheckForEnd(ref bool? whiteWon, bool isWhitesTurn) {
-        if (board.GetAllMoves(isWhitesTurn).Count == 0) {
+        if (!board.GetAllMoves(isWhitesTurn).Any()) {
             if (isCheck(!isWhitesTurn))
-                whiteWon = isWhitesTurn;
+                whiteWon = !isWhitesTurn;
             else
                 whiteWon = null;
 
@@ -162,7 +158,7 @@ public class Chess : Game {
         int penalty = 0;
         foreach (Piece pawn in board.GetPieces(PieceType.CH_PAWN)) {
             // Blocked pawns penalty
-            if (pawn.PossibleMoves(eliminateMoves: false).Count == 0) {
+            if (!pawn.PossibleMoves(isWhitesTurn, eliminateMoves: false).Any()) {
                 penalty += pawn.isWhite == isWhitesTurn ? 1 : -1;
             }
         }
@@ -170,45 +166,19 @@ public class Chess : Game {
     }
 
     public override int scoreBoard (bool isWhitesTurn) {
-        List<Move> opponentMoves = board.GetAllMoves(!isWhitesTurn);
-        if (opponentMoves.Count == 0 && isCheck(!isWhitesTurn)) {
+        IEnumerable<Move> opponentMoves = board.GetAllMoves(!isWhitesTurn);
+        if (!opponentMoves.Any() && isCheck(!isWhitesTurn)) {
             return int.MinValue / 2;
         }
 
-        List<Move> moves = board.GetAllMoves(isWhitesTurn);
-        if (moves.Count == 0 && isCheck(isWhitesTurn)) {
+        IEnumerable<Move> moves = board.GetAllMoves(isWhitesTurn);
+        if (!moves.Any() && isCheck(isWhitesTurn)) {
             return int.MaxValue / 2;
         }
 
-        int materialScore = 0;
+        int movementScore = 0; // moves.ToList().Count - opponentMoves.ToList().Count;
+        int pawnsPenalty = 0; // calculatePawnsPenalty(isWhitesTurn);
 
-        foreach (Piece piece in board.GetPieces()) {
-            int pieceScore = 0;
-
-            switch (piece.pieceType) {
-            case PieceType.CH_PAWN:
-                pieceScore = 1;
-                break;
-            case PieceType.CH_KNIG:
-                pieceScore = 3;
-                break;
-            case PieceType.CH_BISH:
-                pieceScore = 3;
-                break;
-            case PieceType.CH_ROOK:
-                pieceScore = 5;
-                break;
-            case PieceType.CH_QUEE:
-                pieceScore = 9;
-                break;
-            }
-
-            materialScore += piece.isWhite == isWhitesTurn ? pieceScore : -pieceScore;
-        }
-
-        int movementScore = moves.Count - opponentMoves.Count;
-        int pawnsPenalty = calculatePawnsPenalty(isWhitesTurn);
-
-        return 100 * materialScore + 10 * movementScore - 50 * pawnsPenalty;
+        return 100 * materialScore() + 10 * movementScore - 50 * pawnsPenalty;
     }
 }

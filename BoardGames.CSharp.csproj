@@ -64,8 +64,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\AI.cs" />
-    <Compile Include="Assets\Scripts\Board.cs" />
-    <Compile Include="Assets\Scripts\Field.cs" />
+    <Compile Include="Assets\Scripts\Board\Board.cs" />
+    <Compile Include="Assets\Scripts\Board\Field.cs" />
+    <Compile Include="Assets\Scripts\Board\Move.cs" />
+    <Compile Include="Assets\Scripts\Board\Piece.cs" />
+    <Compile Include="Assets\Scripts\Board\Position.cs" />
     <Compile Include="Assets\Scripts\GameIcon.cs" />
     <Compile Include="Assets\Scripts\Games\Checkers.cs" />
     <Compile Include="Assets\Scripts\Games\Chess.cs" />
@@ -73,7 +76,6 @@
     <Compile Include="Assets\Scripts\Games\Game.cs" />
     <Compile Include="Assets\Scripts\Games\Reversi.cs" />
     <Compile Include="Assets\Scripts\Games\VikingChess.cs" />
-    <Compile Include="Assets\Scripts\Piece.cs" />
     <Compile Include="Assets\Scripts\UI.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

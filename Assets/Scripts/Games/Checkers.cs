@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
 using System.Collections;
-using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Checkers : Game {
@@ -76,7 +77,7 @@ public class Checkers : Game {
         if (CheckForAttack(piece))
             attacked = true;
 
-        base.UndoMove(move);
+        base.UndoMove(move, fake);
 
         isWhitesTurn = !isWhitesTurn;
 
@@ -109,7 +110,9 @@ public class Checkers : Game {
             }
         }
 
-        possibleMoves.RemoveAll(x => toRemove.Contains(x));
+        foreach (Move move in toRemove) {
+            possibleMoves.Remove(move);
+        }
     }
 
     public override bool CanMoveTo (int x, int y, PieceType pieceType = PieceType.AL_NONE) {
@@ -126,29 +129,29 @@ public class Checkers : Game {
         bool whiteCanMove = false;
         bool blackCanMove = false;
 
-        List<Piece> pieces = board.GetPieces(PieceType.CK_PAWN);
+        List<Piece> pieces = board.GetPieces(PieceType.CK_PAWN).ToList();
         foreach(Piece piece in pieces)
         {
             if (piece.isWhite) {
                 white++;
-                if (piece.PossibleMoves().Count > 0)
+                if (piece.PossibleMoves(piece.isWhite).Any())
                     whiteCanMove = true;
             } else {
                 black++;
-                if (piece.PossibleMoves().Count > 0)
+                if (piece.PossibleMoves(piece.isWhite).Any())
                     blackCanMove = true;
             }
         }
 
-        pieces = board.GetPieces(PieceType.CK_KING);
+        pieces = board.GetPieces(PieceType.CK_KING).ToList();
         foreach (Piece piece in pieces) {
             if (piece.isWhite) {
                 white++;
-                if (piece.PossibleMoves().Count > 0)
+                if (piece.PossibleMoves(piece.isWhite).Any())
                     whiteCanMove = true;
             } else {
                 black++;
-                if (piece.PossibleMoves().Count > 0)
+                if (piece.PossibleMoves(piece.isWhite).Any())
                     blackCanMove = true;
             }
         }
@@ -166,8 +169,7 @@ public class Checkers : Game {
     }
 
     public bool CheckForPieceEvolve (Move move) {
-        List<Piece> pieces = board.GetPieces(PieceType.CK_PAWN);
-        foreach (Piece piece in pieces) {
+        foreach (Piece piece in board.GetPieces(PieceType.CK_PAWN)) {
             if (piece.isWhite == isWhitesTurn) {
                 if ((isWhitesTurn && piece.position.y == 0) || (!isWhitesTurn && piece.position.y == board.height - 1)) {
                     move.eatenPieces.Add(piece);
@@ -192,8 +194,7 @@ public class Checkers : Game {
     }
 
     public bool CheckForAttack(Piece piece) {
-        List<Move> possibleMoves = piece.PossibleMoves();
-        foreach (Move move in possibleMoves) {
+        foreach (Move move in piece.PossibleMoves(isWhitesTurn)) {
             if (move.isAttack) {
                 return true;
             }
@@ -202,11 +203,9 @@ public class Checkers : Game {
     }
 
     public bool CheckForAttack() {
-        List<Piece> pieces = board.GetPieces(PieceType.CK_PAWN);
-        foreach(Piece piece in pieces) {
+        foreach(Piece piece in board.GetPieces(PieceType.CK_PAWN)) {
             if (piece.isWhite == isWhitesTurn) {
-                List<Move> possibleMoves = piece.PossibleMoves();
-                foreach (Move move in possibleMoves) {
+                foreach (Move move in piece.PossibleMoves(isWhitesTurn)) {
                     if (move.isAttack) {
                         return true;
                     }
@@ -214,23 +213,16 @@ public class Checkers : Game {
             }
         }
 
-        pieces = board.GetPieces(PieceType.CK_KING);
-        foreach (Piece piece in pieces) {
+        foreach (Piece piece in board.GetPieces(PieceType.CK_KING)) {
             if (piece.isWhite == isWhitesTurn) {
-                List<Move> possibleMoves = piece.PossibleMoves();
-                foreach (Move move in possibleMoves) {
+                foreach (Move move in piece.PossibleMoves(isWhitesTurn)) {
                     if (move.isAttack) {
                         return true;
                     }
                 }
             }
         }
-
 
         return false;
-    }
-
-    public override int scoreBoard (bool isWhitesTurn) {
-        return new System.Random().Next();
     }
 }

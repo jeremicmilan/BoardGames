@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
 using System.Collections;
-using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 public enum FieldType { BLACK, WHITE, CASTL, ESCAP, NEUTR }
 
