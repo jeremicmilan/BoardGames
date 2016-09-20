@@ -11,7 +11,6 @@ public abstract class Game {
 
     public GameName gameName;
     public string name;
-    public string description;
     public AI ai;
     public bool playingAgainstAI;
 
@@ -20,10 +19,9 @@ public abstract class Game {
     public bool isWhitesTurn;
     public bool gameEnded = false;
 
-    public Game (GameName gameName, string name, string description) {
+    public Game (GameName gameName, string name) {
         this.gameName = gameName;
         this.name = name;
-        this.description = name;
         ai = new AI(this);
     }
 

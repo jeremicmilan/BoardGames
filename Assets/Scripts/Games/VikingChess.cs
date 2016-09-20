@@ -9,7 +9,7 @@ public class VikingChess : Game {
     List<Position> visitedPositions = new List<Position>();
 
     public VikingChess ()
-        : base(GameName.VIKING_CHESS, "Viking Chess", "") { }
+        : base(GameName.VIKING_CHESS, "Viking Chess") { }
 
     protected override void SetBoardAndPieces () {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));

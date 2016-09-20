@@ -11,7 +11,7 @@ public class Reversi : Game {
     private List<Piece> toChange = new List<Piece> ();
 
     public Reversi ()
-        : base(GameName.REVERSI, "Reversi", "") { }
+        : base(GameName.REVERSI, "Reversi") { }
 
     protected override void SetBoardAndPieces () {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));

@@ -60,15 +60,7 @@ public class UI : MonoBehaviour {
         gameTitle.text = game.name;
         image.sprite = Resources.Load<Sprite>("Images/" + game.name);
 
-
-        string line;
-        StreamReader theReader = new StreamReader("Assets/Resources/Descriptions/" + game.name + ".txt", Encoding.Default);
-        using (theReader) {
-            line = theReader.ReadLine();
-            theReader.Close();
-        }
-
-        description.text = line;
+        description.text = ((TextAsset)Resources.Load("Descriptions/" + game.name, typeof(TextAsset))).text; 
     }
      
         
