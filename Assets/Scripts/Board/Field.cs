@@ -37,16 +37,6 @@ public class Field : MonoBehaviour {
 
         if (board.game.CanMakeMove(move)) {
             board.game.MakeMove(move);
-            bool? whiteWon = false;
-            if (board.game.CheckForEnd(ref whiteWon)) {
-                board.game.gameEnded = true;
-                string text;
-                if (whiteWon.HasValue)
-                    text = (whiteWon.Value ? "White" : "Black") + " won!";
-                else
-                    text = "Draw!";
-                board.UpdateGameStatusText(text);
-            }
         } else if (piece) {
             piece.OnClick();
         } else {

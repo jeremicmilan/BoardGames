@@ -13,6 +13,7 @@ public abstract class Game {
     public string name;
     public AI ai;
     public bool playingAgainstAI;
+    public bool isAIWhite;
 
     public Board board;
 
@@ -76,7 +77,18 @@ public abstract class Game {
 
         board.previousPossibleMoves.Clear();
 
-        if (playingAgainstAI && !fake && !isWhitesTurn) { // TODO: isWhitesTurn -> isAIsTurn, pick color for single player
+        bool? whiteWon = false;
+        if (!fake && board.game.CheckForEnd(ref whiteWon)) {
+            gameEnded = true;
+            string text;
+            if (whiteWon.HasValue)
+                text = (whiteWon.Value ? "White" : "Black") + " won!";
+            else
+                text = "Draw!";
+            board.UpdateGameStatusText(text);
+        }
+
+        if (!gameEnded && playingAgainstAI && !fake && (isWhitesTurn == isAIWhite)) { // TODO: isWhitesTurn -> isAIsTurn, pick color for single player
             MakeMove(getAIMove());
         }
     }
@@ -107,7 +119,7 @@ public abstract class Game {
             board.UpdatePlayerStatusText();
         }
 
-        if (playingAgainstAI && !fake && !isWhitesTurn) { // TODO: isWhitesTurn -> isAIsTurn, pick color for single player
+        if (playingAgainstAI && !fake && (isWhitesTurn == isAIWhite)) { // TODO: isWhitesTurn -> isAIsTurn, pick color for single player
             board.Undo();
         }
     }
