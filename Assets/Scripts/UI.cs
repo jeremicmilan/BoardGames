@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Text;
+using System.IO;
 
 public enum GameName { VIKING_CHESS, REVERSI, CHECKERS, CHESS, FOX_AND_HOUNDS };
 
@@ -12,6 +14,9 @@ public class UI : MonoBehaviour {
     public Canvas gameUI;
 
     public Text gameTitle;
+    public Text description;
+    public Image image;
+
 
     public void setActiveUI (Canvas ui) {
         mainMenu.enabled = false;
@@ -31,7 +36,7 @@ public class UI : MonoBehaviour {
         setActiveUI(mainMenu);
     }
 
-    public void SetGame (GameName gameName) {
+    public void SetGame(GameName gameName) {
         switch (gameName) {
             case GameName.VIKING_CHESS:
                 game = new VikingChess();
@@ -53,7 +58,22 @@ public class UI : MonoBehaviour {
         }
 
         gameTitle.text = game.name;
+        image.sprite = Resources.Load<Sprite>("Images/" + game.name);
+
+
+        string line;
+        StreamReader theReader = new StreamReader("Assets/Resources/Descriptions/" + game.name + ".txt", Encoding.Default);
+        using (theReader) {
+            line = theReader.ReadLine();
+            theReader.Close();
+        }
+
+        description.text = line;
     }
+     
+        
+         
+    
 
     public void StartSinglePlayer () {
         setActiveUI(gameUI);

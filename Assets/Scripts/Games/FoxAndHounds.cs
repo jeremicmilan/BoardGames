@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class FoxAndHounds : Game {
     public FoxAndHounds()
-        : base(GameName.FOX_AND_HOUNDS, "Fox And Hounds", "", null) { }
+        : base(GameName.FOX_AND_HOUNDS, "Fox And Hounds", "") { }
 
     protected override void SetBoardAndPieces () {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));

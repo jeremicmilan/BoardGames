@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class Chess : Game {
     public Chess ()
-        : base(GameName.CHESS, "Chess", "", null) { }
+        : base(GameName.CHESS, "Chess", "") { }
 
     protected override void SetBoardAndPieces() {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));

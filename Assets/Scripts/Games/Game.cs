@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Assertions;
+using System.Threading;
 
 public abstract class Game {
 
     public GameName gameName;
     public string name;
     public string description;
-    public GameObject picture;
     public AI ai;
     public bool playingAgainstAI;
 
@@ -20,11 +20,10 @@ public abstract class Game {
     public bool isWhitesTurn;
     public bool gameEnded = false;
 
-    public Game (GameName gameName, string name, string description, GameObject picture) {
+    public Game (GameName gameName, string name, string description) {
         this.gameName = gameName;
         this.name = name;
         this.description = name;
-        this.picture = picture;
         ai = new AI(this);
     }
 

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class Checkers : Game {
 
     public Checkers ()
-        : base(GameName.CHECKERS, "Checkers", "", null) { }
+        : base(GameName.CHECKERS, "Checkers", "") { }
 
     protected override void SetBoardAndPieces () {
         GameObject boardObject = GameObject.Instantiate((GameObject)Resources.Load("Prefabs/Board", typeof(GameObject)));
