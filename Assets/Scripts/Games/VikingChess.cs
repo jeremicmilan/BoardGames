@@ -54,10 +54,12 @@ public class VikingChess : Game {
 
     protected override void GameSpecificStartSinglePlayer () {
         isWhitesTurn = false;
+        isAIWhite = true;
     }
 
     protected override void GameSpecificStartTwoPlayer () {
         isWhitesTurn = false;
+        isAIWhite = true;
     }
 
     private bool Attack (Move move, Position direction, bool destroy = false) {

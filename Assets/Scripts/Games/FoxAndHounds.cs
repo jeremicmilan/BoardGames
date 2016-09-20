@@ -43,11 +43,13 @@ public class FoxAndHounds : Game {
 
     protected override void GameSpecificStartSinglePlayer () {
         isWhitesTurn = true;
+        isAIWhite = false;
         SetFox();
     }
 
     protected override void GameSpecificStartTwoPlayer () {
         isWhitesTurn = true;
+        isAIWhite = false;
         SetFox();
     }
 

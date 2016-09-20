@@ -42,10 +42,12 @@ public class Chess : Game {
 
     protected override void GameSpecificStartSinglePlayer () {
         isWhitesTurn = true;
+        isAIWhite = false;
     }
 
     protected override void GameSpecificStartTwoPlayer () {
         isWhitesTurn = true;
+        isAIWhite = false;
     }
 
     public override bool Attack(Move move, bool destroy = true) {

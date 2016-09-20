@@ -44,10 +44,12 @@ public class Checkers : Game {
 
     protected override void GameSpecificStartSinglePlayer () {
         isWhitesTurn = false;
+        isAIWhite = true;
     }
 
     protected override void GameSpecificStartTwoPlayer () {
         isWhitesTurn = false;
+        isAIWhite = true;
     }
 
     public override bool Attack (Move move, bool destroy = true) {
