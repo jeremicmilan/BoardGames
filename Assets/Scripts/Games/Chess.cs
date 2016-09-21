@@ -126,7 +126,7 @@ public class Chess : Game {
             if ((isWhitesTurn && piece.position.y == 0) || (!isWhitesTurn && piece.position.y == board.height - 1)) {
                 move.eatenPieces.Add(piece);
                 board.SendToGraveyard(piece);
-                board.setPiece(PieceType.CH_QUEE, isWhitesTurn, move.end); // TODO: Pick a piece to evolve
+                board.setPiece(PieceType.CH_QUEE, isWhitesTurn, move.end); 
                 return true;
             }
         }
