@@ -156,6 +156,7 @@ public class Reversi : Game {
         foreach (Piece p in move.eatenPieces) {
             board.SendToGraveyard(p.position.field.FindPiece());
             p.transform.parent = p.position.field.transform;
+            p.gameObject.SetActive(true);
             p.transform.localPosition = new Vector3(0, 0, -1);
         }
 
